@@ -7,7 +7,7 @@ Look: "Dusk horizon" - objects rest on the ground at dusk, lit by a low warm sun
 - `npm install`
 - `npm run studio` - live preview
 - `npm run render:short01` - render Short 01 (1080x1920). Uses WebGL, so `--gl=swangle` is required in headless/cloud renders.
-- `npm run music` - regenerate the ambient music bed (numpy + scipy)
+- `npm run music` - make the ambient music bed (numpy + scipy). Run it before rendering; the wav is not committed.
 
 In the cloud, set `REMOTION_CHROME=/opt/pw-browsers/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell` before rendering.
 
