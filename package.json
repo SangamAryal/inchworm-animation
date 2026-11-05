@@ -5,7 +5,9 @@
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "render:short01": "remotion render src/index.ts short01 out/short01.mp4 --gl=swangle",
-    "music": "python3 audio/make_beat.py 41.5 1.9 3.4 public/audio/short01-music.wav"
+    "music": "python3 audio/make_beat.py 41.5 1.9 3.4 public/audio/short01-music.wav",
+    "sound:short02": "npx tsx scripts/events02.ts '[\"elephant\",\"human\",\"zebra\",\"bear\",\"impala\",\"greyhound\",\"horse\",\"lion\",\"pronghorn\",\"cheetah\",\"bat\"]' 0 60 out/ev-short02.json && python3 audio/make_beat.py $(python3 -c \"import json;print(*json.load(open('out/ev-short02.json'))['music'])\") out/music-short02.wav && python3 audio/normalize.py out/music-short02.wav public/audio/short02.wav",
+    "render:short02": "remotion render src/index.ts short02 out/short02.mp4"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",
@@ -16,5 +18,8 @@
     "react-dom": "^19.0.0",
     "remotion": "^4.0.300",
     "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
   }
 }
