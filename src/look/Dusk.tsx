@@ -27,8 +27,14 @@ export const DuskDefs: React.FC = () => (
       <stop offset="0.66" stopColor="#E3AE8E" />
     </linearGradient>
     <linearGradient id="duGround" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stopColor="#4A3A47" />
-      <stop offset="1" stopColor="#231C26" />
+      <stop offset="0" stopColor="#3A3236" />
+      <stop offset="0.25" stopColor="#252024" />
+      <stop offset="1" stopColor="#0F0D10" />
+    </linearGradient>
+    <linearGradient id="duRim" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stopColor="#E8A57A" stopOpacity="0.55" />
+      <stop offset="0.6" stopColor="#E8A57A" stopOpacity="0.08" />
+      <stop offset="1" stopColor="#E8A57A" stopOpacity="0" />
     </linearGradient>
     <radialGradient id="duSun" cx="0.18" cy="0.64" r="0.5">
       <stop offset="0" stopColor="#FFD9AE" stopOpacity="0.55" />
@@ -45,22 +51,40 @@ export const DuskDefs: React.FC = () => (
   </defs>
 );
 
+// Rocky ground under a space sky: distant crater rims, a lit horizon, and
+// shallow craters on the plain that slide past as the camera moves.
 export const DuskBackground: React.FC<{drift: number}> = ({drift}) => {
-  const R = rng(4);
-  const stars = Array.from({length: 40}, () => ({x: R() * 1080, y: R() * 640, s: 0.8 + R() * 1.6, o: 0.2 + R() * 0.5}));
-  const layer = (seed: number, y: number, amp: number, fill: string, depth: number) => {
+  const layer = (seed: number, y: number, amp: number, fill: string, depth: number, rim: boolean) => {
     const ox = -((((drift + 1) * 300 * depth) % 1400) + 1400) % 1400;
-    return <path d={ridge(seed, y, amp)} fill={fill} transform={`translate(${ox},0)`} />;
+    const d = ridge(seed, y, amp);
+    return (
+      <g transform={`translate(${ox},0)`}>
+        <path d={d} fill={fill} />
+        {rim && <path d={d} fill="none" stroke="url(#duRim)" strokeWidth={2} />}
+      </g>
+    );
   };
+  const R = rng(9);
+  const craters = Array.from({length: 26}, () => ({x: R() * 2200, v: R(), w: 20 + R() * 90}));
+  const off = (drift + 1) * 520;
   return (
     <g>
-      <rect width={1080} height={1920} fill="url(#duSky)" />
-      <rect width={1080} height={1920} fill="url(#duSun)" />
-      {stars.map((s, i) => <circle key={i} cx={s.x} cy={s.y} r={s.s} fill="#FFF3E6" opacity={s.o * 0.7} />)}
-      {layer(3, 1150, 60, '#9A7380', 0.15)}
-      {layer(7, 1200, 45, '#7A5A6A', 0.3)}
-      {layer(11, 1240, 25, '#5A4352', 0.55)}
+      {layer(3, 1195, 38, '#2E282D', 0.15, true)}
+      {layer(7, 1228, 26, '#262126', 0.3, true)}
       <rect y={FLOOR - 4} width={1080} height={1920 - FLOOR + 4} fill="url(#duGround)" />
+      <line x1={0} x2={1080} y1={FLOOR - 3} y2={FLOOR - 3} stroke="#E8A57A" strokeOpacity={0.18} strokeWidth={2} />
+      {craters.map((c, i) => {
+        const y = FLOOR + 14 + Math.pow(c.v, 1.8) * 640;
+        const k = (y - FLOOR) / 640;
+        const x = (((c.x - off * (0.25 + k)) % 2200) + 2200) % 2200 - 560;
+        const w = c.w * (0.3 + k * 1.4);
+        return (
+          <g key={i} opacity={0.55}>
+            <ellipse cx={x} cy={y} rx={w} ry={w * (0.07 + k * 0.1)} fill="#0C0A0D" opacity={0.55} />
+            <ellipse cx={x + w * 0.05} cy={y + w * 0.02} rx={w * 0.92} ry={w * (0.06 + k * 0.09)} fill="none" stroke="#C99C7E" strokeOpacity={0.12} strokeWidth={1.2} />
+          </g>
+        );
+      })}
     </g>
   );
 };
@@ -112,7 +136,7 @@ export const DuskLabel: React.FC<{item: Item; x: number; opacity: number; highli
 export const DuskMultiplier: React.FC<{value: string; opacity: number}> = ({value, opacity}) => (
   <g opacity={opacity}>
     <text x={540} y={360} textAnchor="middle" fontFamily="Inter" fontWeight={300} fontSize={150} fill={CREAM} letterSpacing={-4}>{value}<tspan fill={ACC}>×</tspan></text>
-    <text x={540} y={430} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={22} letterSpacing={5} fill={MUTE}>WIDER</text>
+    <text x={540} y={430} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={22} letterSpacing={5} fill={MUTE}>BIGGER</text>
   </g>
 );
 

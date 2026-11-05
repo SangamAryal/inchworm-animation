@@ -4,6 +4,7 @@ import {Item, Timing} from './types';
 import {makeLayout} from './layout';
 import {fmtRatio, fmtSize} from './format';
 import {GLBody} from '../bodies/GLBody';
+import {SpaceSky} from '../look/SpaceSky';
 import {DuskBackground, DuskDefs, DuskGround, DuskLabel, DuskMultiplier, DuskScaleBar, DuskTitle, FLOOR, GroundGlow} from '../look/Dusk';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
@@ -31,7 +32,7 @@ export const Comparison: React.FC<{items: Item[]; timing: Timing; title: [string
     if (x + vw < -40 || x - vw > 1120) return null;
     const intro = i === 0 ? interpolate(f, [4, 30], [0, 1], clamp) : 1;
     const y = FLOOR - r * it.lift;
-    const labOp = interpolate(r, [3, 9], [0, 1], clamp) * intro * interpolate(p - i, [0.15, 0.55], [1, 0], clamp) * (i === 0 ? interpolate(f, [18, 40], [0, 1], clamp) : 1);
+    const labOp = interpolate(r, [3, 9], [0, 1], clamp) * intro * interpolate(p - i, [0.15, 0.55], [1, 0], clamp) * interpolate(i - p, [1.45, 1.85], [1, 0], clamp) * (i === 0 ? interpolate(f, [18, 40], [0, 1], clamp) : 1);
     return {it, i, x, y, r, intro, labOp};
   }).filter(Boolean) as {it: Item; i: number; x: number; y: number; r: number; intro: number; labOp: number}[];
 
@@ -45,7 +46,8 @@ export const Comparison: React.FC<{items: Item[]; timing: Timing; title: [string
   const endFade = interpolate(f, [L.duration - 12, L.duration - 1], [1, 0], clamp);
 
   return (
-    <AbsoluteFill style={{background: '#231C26', opacity: endFade}}>
+    <AbsoluteFill style={{background: '#0B0A10', opacity: endFade}}>
+      <SpaceSky t={t} drift={p} />
       <svg width={1080} height={1920} style={{position: 'absolute'}}>
         <DuskDefs />
         <DuskBackground drift={p} />

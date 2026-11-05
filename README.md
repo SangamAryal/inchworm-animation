@@ -1,7 +1,7 @@
 # inchworm-animation
 
 Code-animated 2.5D size and speed comparisons of space objects, rendered with Remotion.
-Look: "Dusk horizon" - objects rest on the ground at dusk, lit by a low warm sun, with parallax hills.
+Look: objects rest on a rocky ground under a deep-space sky (Milky Way, parallax stars), lit by a low warm sun. Soft whoosh on each move.
 
 ## Commands
 - `npm install`
