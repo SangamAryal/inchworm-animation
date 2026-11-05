@@ -8,7 +8,7 @@ import {Timeline, ms} from './timeline';
 import {RACE, noseX} from './raceData';
 import {ACC, CREAM, MUTE, fmt} from './Labels';
 
-// Finale: every runner side by side, true common scale, 3 seconds at top speed.
+// Finale: every runner side by side, true common scale, 5 seconds at top speed.
 const LANES: Record<string, number> = {bat: 590, cheetah: 720, pronghorn: 845, horse: 990, bear: 1110, human: 1250, elephant: 1440};
 const LENGTH: Record<string, number> = {bat: 0.07, cheetah: 0.55, pronghorn: 0.97, horse: 1.56, bear: 1.18, human: 0.14, elephant: 2.0}; // nose ahead of body origin, m
 
@@ -27,10 +27,10 @@ export const Race: React.FC<{TL: Timeline; f: number}> = ({TL, f}) => {
     <g opacity={op}>
       <rect width={1080} height={1920} fill="#140d12" opacity={0.55} />
       <text x={540} y={300} textAnchor="middle" fontFamily="Inter" fontWeight={300} fontSize={62} fill={CREAM}>Race for</text>
-      <text x={540} y={380} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={62} fill={CREAM}>3 seconds</text>
+      <text x={540} y={380} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={62} fill={CREAM}>5 seconds</text>
       <text x={540} y={450} textAnchor="middle" fontFamily="IBM Plex Mono" fontWeight={500} fontSize={40} fill={ACC}>{rt.toFixed(1)} s</text>
       <line x1={RACE.startX} x2={RACE.startX} y1={520} y2={1470} stroke={CREAM} strokeOpacity={0.35} strokeWidth={2} strokeDasharray="6 8" />
-      {[50, 100].map((m) => (
+      {[100, 200].map((m) => (
         <g key={m}>
           <line x1={RACE.startX + m * RACE.pxPerM} x2={RACE.startX + m * RACE.pxPerM} y1={520} y2={1470} stroke={CREAM} strokeOpacity={0.15} strokeWidth={2} />
           <text x={RACE.startX + m * RACE.pxPerM} y={1505} textAnchor="middle" fontFamily="IBM Plex Mono" fontSize={22} fill={MUTE}>{m} m</text>

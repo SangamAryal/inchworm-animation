@@ -4,7 +4,7 @@ import {footfalls} from '../../creatures/rig';
 import {T} from './data';
 import {Timeline} from './timeline';
 
-export const RACE = {fadeIn: 24, run: 90, s: 45, startX: 70, pxPerM: 960 / 140};
+export const RACE = {fadeIn: 24, run: 150, s: 45, startX: 70, pxPerM: 960 / 240};
 export const noseX = (kmh: number, rt: number) => RACE.startX + (kmh / 3.6) * rt * RACE.pxPerM;
 
 export const raceEvents = (TL: Timeline) => {
