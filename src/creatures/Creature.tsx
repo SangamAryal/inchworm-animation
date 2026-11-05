@@ -115,6 +115,11 @@ export const Creature: React.FC<Props> = ({spec: S, t, x, g, s, id, opacity = 1,
             </filter>
           );
         })()}
+        {S.stripes && (
+          <pattern id={`${id}-stripe`} patternUnits="userSpaceOnUse" x={0} y={g} width={40} height={S.stripes.period * s}>
+            <rect x={0} y={0} width={40} height={S.stripes.period * s * 0.45} fill={S.stripes.color} />
+          </pattern>
+        )}
         <filter id={`${id}-sh`} x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation={Math.max(1.5, s * 0.03)} /></filter>
       </defs>
       {shadow > 0 && (
@@ -128,6 +133,7 @@ export const Creature: React.FC<Props> = ({spec: S, t, x, g, s, id, opacity = 1,
       </g>
       <g filter={`url(#${id}-in)`}>
         {near.map((l, i) => l.ds.map((d, k2) => <path key={`n${i}${k2}`} d={d} fill={l.L.color ?? limbFill} />))}
+        {S.stripes && near.map((l, i) => <path key={`s${i}`} d={l.ds[0]} fill={`url(#${id}-stripe)`} opacity={0.9} />)}
         {tailD && <path d={tailD} fill={S.tail?.color ?? body} />}
         <path d={torsoD} fill={body} />
         <path d={headD} fill={body} />

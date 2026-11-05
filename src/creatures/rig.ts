@@ -48,6 +48,7 @@ export type Spec = {
   colors: {top: string; mid: string; bottom: string; far: string; rim: string; limb?: string; limbFar?: string};
   height: number; // overall height in metres, for gradients
   fur?: {len: number; rough: number; grain: number; round?: number}; // strand length (m), edge roughness (m), texture strength
+  stripes?: {color: string; period: number}; // horizontal leg stripes (zebra), period in metres
 };
 
 export type Pose = {

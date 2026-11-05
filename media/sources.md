@@ -27,11 +27,14 @@ Event-horizon diameter = 4GM/c^2 = 5.906 km per solar mass. Black-hole masses (e
 |---|---|---|
 | Asian elephant | 24 km/h (15 mph), ~6.7 m/s | Hutchinson, Famini, Lair & Kram (2003), "Are fast-moving elephants really running?", Nature 422, 493-494 |
 | Human | 44.7 km/h (27.8 mph), 12.42 m/s | Usain Bolt's peak speed in the 9.58 s 100 m world record, Berlin 2009 (Graubner & Nixdorf 2011, IAAF biomechanical analysis, New Studies in Athletics 26) |
+| Plains zebra | 49.7 km/h (30.9 mph), 13.8 m/s | Wilson et al. (2018), "Biomechanics of predator-prey arms race in lion, zebra, cheetah and impala", Nature 554, 183-188 (GPS collars on wild animals in Botswana; highest speed reached by three individuals) |
 | Grizzly bear | 56 km/h (35 mph), the low end of 35-40 mph | US National Park Service, "Yellowstone Grizzly Bear Facts" (nps.gov/yell) |
+| Impala | 63.7 km/h (39.6 mph), 17.7 m/s | Wilson et al. (2018), "Biomechanics of predator-prey arms race in lion, zebra, cheetah and impala", Nature 554, 183-188 (GPS collars on wild animals in Botswana; highest speed reached by three individuals) |
+| Greyhound | 67.32 km/h (41.83 mph) | Guinness World Records, fastest greyhound (Star Title, Wyong, Australia, 5 March 1994) |
 | Racehorse | 70.35 km/h (43.71 mph) | Guinness World Records, "Fastest speed for a racehorse" (Winning Brew, Penn National, 14 May 2008) |
+| Lion | 74.2 km/h (46.1 mph), 20.6 m/s | Wilson et al. (2018), "Biomechanics of predator-prey arms race in lion, zebra, cheetah and impala", Nature 554, 183-188 (GPS collars on wild animals in Botswana; highest speed reached by three individuals) |
 | Pronghorn | 88.5 km/h (55 mph) | US National Park Service, "Pronghorn" (nps.gov/articles/000/pronghorn.htm) |
 | Cheetah | 93 km/h (58 mph), 25.9 m/s | Wilson et al. (2013), "Locomotion dynamics of hunting in wild cheetahs", Nature 498, 185-189 (GPS collars on wild cheetahs). Older figures of 104-120 km/h come from captive or less precise measurements. |
 | Brazilian free-tailed bat | 160 km/h (99 mph), 44.5 m/s | McCracken et al. (2016), "Airplane tracking documents the fastest flight speeds recorded for bats", Royal Society Open Science 3, 160398 (ground speed in level flight) |
 
-Masses used for footstep weight (approximate): elephant 4,000 kg, human 94 kg, grizzly 250 kg, horse 500 kg, pronghorn 50 kg, cheetah 50 kg, bat 12 g.
-All animals are drawn in code (src/creatures/), no images. All sound is synthesised in code (audio/make_beat.py, audio/make_steps.py).
+All animals are drawn in code (src/creatures/), no images. Music is synthesised in code (audio/make_beat.py); no sound effects.
