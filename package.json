@@ -5,7 +5,7 @@
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "render:short01": "remotion render src/index.ts short01 out/short01.mp4 --gl=swangle",
-    "music": "python3 audio/make_music.py 41.5 public/audio/short01-music.wav && python3 audio/make_sfx.py public/audio"
+    "music": "python3 audio/make_beat.py 41.5 1.9 3.4 public/audio/short01-music.wav"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",
