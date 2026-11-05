@@ -6,7 +6,7 @@ Look: objects rest on a rocky ground under a deep-space sky (Milky Way, parallax
 ## Commands
 - `npm install`
 - `npm run studio` - live preview
-- `npm run render:short01` - render Short 01 (1080x1920). Uses WebGL, so `--gl=swangle` is required in headless/cloud renders.
+- `npm run render:short01` - render Short 01 (1080x1920). Thumbnail and cover: `npx remotion still src/index.ts thumb01|cover01 out/x.png --gl=swangle`. Uses WebGL, so `--gl=swangle` is required in headless/cloud renders.
 - `npm run music` - make the beat (numpy + scipy). Run it before rendering; the wav is not committed.
 
 In the cloud, set `REMOTION_CHROME=/opt/pw-browsers/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell` before rendering.

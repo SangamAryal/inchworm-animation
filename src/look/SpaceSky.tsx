@@ -7,7 +7,7 @@ import {VERT} from '../bodies/shaders';
 const FRAG = `#version 300 es
 precision highp float;
 in vec2 vUv; out vec4 o;
-uniform float uT, uDrift; uniform vec2 uRes;
+uniform float uT, uDrift, uHz; uniform vec2 uRes;
 float h2(vec2 p){ p=fract(p*vec2(123.34,456.21)); p+=dot(p,p+45.32); return fract(p.x*p.y); }
 float h1(vec3 p){ p=fract(p*.3183099+.1); p*=17.; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
 float vn(vec3 x){ vec3 i=floor(x), f=fract(x); f=f*f*(3.-2.*f);
@@ -28,7 +28,7 @@ void main(){
   vec2 p=px/uRes.y;                              // 0..1 over the height
   float ar=uRes.x/uRes.y;
   // base: near-black violet, lifting a little toward the horizon
-  float hz=clamp(px.y/1260.,0.,1.);
+  float hz=clamp(px.y/uHz,0.,1.);
   vec3 col=mix(vec3(.018,.016,.035), vec3(.07,.055,.09), pow(hz,3.));
   // Milky Way: a tilted band drifting slowly with the camera
   vec2 q=p+vec2(uDrift*.012,0.);
@@ -49,7 +49,7 @@ void main(){
   col+=vec3(.10,.03,.08)*smoothstep(.55,.8,fbm(vec3(q*2.,7.)))*.6;
   col+=vec3(.02,.06,.09)*smoothstep(.55,.8,fbm(vec3(q*2.3+3.,9.)))*.6;
   // warm glow where the low sun is, just past the left horizon
-  float sg=exp(-length((px-vec2(-120.,1260.))*vec2(1.,1.6))/520.);
+  float sg=exp(-length((px-vec2(-120.,uHz))*vec2(1.,1.6))/520.);
   col+=vec3(.55,.30,.16)*sg*.55;
   // stars in three depths (parallax), denser inside the band
   float s=0.;
@@ -57,7 +57,7 @@ void main(){
   s+=stars(px+vec2(uDrift*55.,0.), 26., 7., 2.)*(.7+band*.8);
   s+=stars(px+vec2(uDrift*120.,0.), 70., 13., 2.5)*1.2;
   vec3 sc=mix(vec3(.75,.82,1.), vec3(1.,.88,.75), h2(floor(px/26.)));
-  col+=sc*s*(1.-smoothstep(1150.,1260.,px.y));
+  col+=sc*s*(1.-smoothstep(uHz-110.,uHz,px.y));
   o=vec4(col,1.);
 }`;
 
@@ -68,7 +68,7 @@ const compile = (gl: WebGL2RenderingContext, type: number, src: string) => {
   return sh;
 };
 
-export const SpaceSky: React.FC<{t: number; drift: number}> = ({t, drift}) => {
+export const SpaceSky: React.FC<{t: number; drift: number; w?: number; h?: number; horizon?: number}> = ({t, drift, w = 1080, h = 1920, horizon = 1260}) => {
   const ref = useRef<HTMLCanvasElement>(null);
   const st = useRef<{gl: WebGL2RenderingContext; loc: Record<string, WebGLUniformLocation | null>} | null>(null);
   const [handle] = useState(() => delayRender('sky'));
@@ -82,16 +82,16 @@ export const SpaceSky: React.FC<{t: number; drift: number}> = ({t, drift}) => {
     const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
     const aP = gl.getAttribLocation(prog, 'aP'); gl.enableVertexAttribArray(aP); gl.vertexAttribPointer(aP, 2, gl.FLOAT, false, 0, 0);
-    st.current = {gl, loc: {uT: gl.getUniformLocation(prog, 'uT'), uDrift: gl.getUniformLocation(prog, 'uDrift'), uRes: gl.getUniformLocation(prog, 'uRes')}};
+    st.current = {gl, loc: {uT: gl.getUniformLocation(prog, 'uT'), uDrift: gl.getUniformLocation(prog, 'uDrift'), uRes: gl.getUniformLocation(prog, 'uRes'), uHz: gl.getUniformLocation(prog, 'uHz')}};
     setReady(true);
     continueRender(handle);
   }, []);
   useLayoutEffect(() => {
     const s = st.current; if (!s || !ready) return;
     const {gl, loc} = s;
-    gl.viewport(0, 0, 1080, 1920);
-    gl.uniform1f(loc.uT, t); gl.uniform1f(loc.uDrift, drift + 1); gl.uniform2f(loc.uRes, 1080, 1920);
+    gl.viewport(0, 0, w, h);
+    gl.uniform1f(loc.uT, t); gl.uniform1f(loc.uDrift, drift + 1); gl.uniform2f(loc.uRes, w, h); gl.uniform1f(loc.uHz, horizon);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); gl.finish();
   });
-  return <canvas ref={ref} width={1080} height={1920} style={{position: 'absolute', left: 0, top: 0, width: 1080, height: 1920}} />;
+  return <canvas ref={ref} width={w} height={h} style={{position: 'absolute', left: 0, top: 0, width: w, height: h}} />;
 };
