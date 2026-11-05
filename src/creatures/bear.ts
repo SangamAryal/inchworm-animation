@@ -1,5 +1,6 @@
 import {V} from './geom';
 import {Spec} from './rig';
+import {blob, crease, light, line} from './detail';
 import {rng} from '../engine/noise';
 
 // Grizzly bear in a gallop. Shoulder hump ~1.1 m, body ~1.9 m.
@@ -27,6 +28,7 @@ export const BEAR: Spec = {
       [1.08, 0.7], [0.99, 0.68], [0.88, 0.69], [0.76, 0.64], [0.63, 0.56], [0.5, 0.58],
     ],
   },
+  fur: {len: 0.035, rough: 0.03, grain: 0.07, round: 0.2},
   limbs: [
     {side: 'far', attach: 'rear', pivot: [-0.62, 0.7], a: 0.38, b: 0.22, wa: [0.32, 0.14], wb: [0.13, 0.12], bend: -1, ...paw, phase: 0, reach: 0.08, sweep: 0.75, lift: 0.22, curl: 0.9, liftAt: 0.4},
     {side: 'near', attach: 'rear', pivot: [-0.58, 0.7], a: 0.38, b: 0.22, wa: [0.34, 0.14], wb: [0.13, 0.12], bend: -1, ...paw, phase: 0.1, reach: 0.08, sweep: 0.75, lift: 0.22, curl: 0.9, liftAt: 0.4},
@@ -34,6 +36,11 @@ export const BEAR: Spec = {
     {side: 'near', attach: 'front', pivot: [0.46, 0.66], a: 0.34, b: 0.22, wa: [0.27, 0.14], wb: [0.13, 0.12], bend: 1, ...paw, phase: 0.47, reach: 0.18, sweep: 0.8, lift: 0.26, curl: 1.2, fwd0: 0.2, liftAt: 0.35},
   ],
   shapes: [
+    crease('torso', [[0.36, 1.08], [0.42, 0.85], [0.5, 0.62]], 0.04, 0.35),
+    crease('torso', [[-0.45, 0.98], [-0.5, 0.78], [-0.58, 0.6]], 0.045, 0.3),
+    crease('head', [[0.84, 0.97], [0.92, 0.94], [0.98, 0.9]], 0.018, 0.4),
+    line('head', [[1.0, 0.705], [1.08, 0.715], [1.13, 0.73]], 0.008, 0.7, '#120a07', 'over'),
+    blob('head', [[1.02, 0.86], [1.14, 0.82], [1.16, 0.76], [1.06, 0.76]], '#a88563', 0.35),
     // grizzled silver tips over the hump and back, small round ears, dark nose
     {frame: 'torso', fill: '#C6A47E', opacity: 0.3, clip: true, soft: true, pts: [[-0.7, 1.0], [-0.2, 1.05], [0.3, 1.18], [0.55, 1.05], [0.4, 0.95], [-0.1, 0.92], [-0.6, 0.92]]},
     {frame: 'head', fill: '#C6A47E', opacity: 0.25, clip: true, soft: true, pts: [[0.6, 1.05], [0.85, 1.0], [0.95, 0.92], [0.75, 0.9]]},

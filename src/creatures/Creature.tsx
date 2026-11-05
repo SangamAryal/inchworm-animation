@@ -61,7 +61,7 @@ export const Creature: React.FC<Props> = ({spec: S, t, x, g, s, id, opacity = 1,
   const shapes = (layer: 'under' | 'over') => (S.shapes ?? []).filter((sh) => (sh.layer ?? 'under') === layer).map((sh, i) => (
     <path key={layer + i} d={shapeD(sh)} fill={sh.open ? 'none' : sh.fill} stroke={sh.open ? sh.fill : undefined}
       strokeWidth={sh.open ? (sh.stroke ?? 0.02) * s : undefined} strokeLinecap="round" opacity={sh.opacity ?? 1}
-      clipPath={sh.clip ? `url(#${id}-${sh.frame}clip)` : undefined} filter={sh.soft ? `url(#${id}-soft)` : undefined} />
+      clipPath={sh.clip ? `url(#${id}-${sh.frame}clip)` : undefined} filter={sh.soft === 'fine' ? `url(#${id}-fine)` : sh.soft === 'mid' ? `url(#${id}-mid)` : sh.soft ? `url(#${id}-soft)` : undefined} />
   ));
 
   const top = g - S.height * s;
@@ -92,16 +92,29 @@ export const Creature: React.FC<Props> = ({spec: S, t, x, g, s, id, opacity = 1,
         <clipPath id={`${id}-torsoclip`}><path d={torsoD} /></clipPath>
         <clipPath id={`${id}-headclip`}><path d={headD} /></clipPath>
         <clipPath id={`${id}-bodyclip`}><path d={torsoD} /><path d={headD} /></clipPath>
-        <filter id={`${id}-soft`} x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation={s * 0.035} /></filter>
-        <filter id={`${id}-in`} x="-10%" y="-10%" width="120%" height="120%">
-          <feComponentTransfer in="SourceAlpha" result="inv"><feFuncA type="table" tableValues="1 0" /></feComponentTransfer>
-          <feOffset in="inv" dx={s * 0.025} dy={s * 0.04} result="off" />
-          <feGaussianBlur in="off" stdDeviation={s * 0.05} result="blur" />
-          <feFlood floodColor="#0b0608" floodOpacity={0.6} />
-          <feComposite in2="blur" operator="in" result="shade" />
-          <feComposite in="shade" in2="SourceAlpha" operator="in" result="inner" />
-          <feMerge><feMergeNode in="SourceGraphic" /><feMergeNode in="inner" /></feMerge>
-        </filter>
+        <filter id={`${id}-fine`} filterUnits="userSpaceOnUse" x={-3000} y={-3000} width={9000} height={9000}><feGaussianBlur stdDeviation={Math.max(0.6, s * 0.01)} /></filter>
+        <filter id={`${id}-mid`} filterUnits="userSpaceOnUse" x={-3000} y={-3000} width={9000} height={9000}><feGaussianBlur stdDeviation={Math.max(1, s * 0.022)} /></filter>
+        <filter id={`${id}-soft`} filterUnits="userSpaceOnUse" x={-3000} y={-3000} width={9000} height={9000}><feGaussianBlur stdDeviation={s * 0.035} /></filter>
+        {(() => {
+          const F = S.fur ?? {len: 0.02, rough: 0, grain: 0.03};
+          const fl = Math.max(1.2, F.len * s);
+          const src = F.rough > 0 ? 'fsrc' : 'SourceGraphic';
+          return (
+            <filter id={`${id}-in`} x="-10%" y="-10%" width="120%" height="120%" colorInterpolationFilters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency={`${(1 / (fl * 5)).toFixed(4)} ${(1 / fl).toFixed(4)}`} numOctaves={2} seed={7} result="noise" />
+              {F.rough > 0 && <feDisplacementMap in="SourceGraphic" in2="noise" scale={F.rough * s} xChannelSelector="R" yChannelSelector="A" result="fsrc" />}
+              <feGaussianBlur in={src} stdDeviation={s * (F.round ?? 0.16)} result="hb" />
+              <feGaussianBlur in={src} stdDeviation={s * 0.035} result="hs" />
+              <feComposite in="hb" in2="hs" operator="arithmetic" k2={0.65} k3={0.35} result="hm" />
+              <feComposite in="noise" in2="hm" operator="arithmetic" k2={F.grain} k3={1} result="h" />
+              <feDiffuseLighting in="h" surfaceScale={s * 0.06} diffuseConstant={1} lightingColor="#fff1e2" result="L">
+                <feDistantLight azimuth={215} elevation={38} />
+              </feDiffuseLighting>
+              <feComposite in={src} in2="L" operator="arithmetic" k1={1.35} result="lit" />
+              <feComposite in="lit" in2={src} operator="in" />
+            </filter>
+          );
+        })()}
         <filter id={`${id}-sh`} x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation={Math.max(1.5, s * 0.03)} /></filter>
       </defs>
       {shadow > 0 && (
@@ -115,7 +128,7 @@ export const Creature: React.FC<Props> = ({spec: S, t, x, g, s, id, opacity = 1,
       </g>
       <g filter={`url(#${id}-in)`}>
         {near.map((l, i) => l.ds.map((d, k2) => <path key={`n${i}${k2}`} d={d} fill={l.L.color ?? limbFill} />))}
-        {tailD && <path d={tailD} fill={body} />}
+        {tailD && <path d={tailD} fill={S.tail?.color ?? body} />}
         <path d={torsoD} fill={body} />
         <path d={headD} fill={body} />
         {trunkD && <path d={trunkD} fill={body} />}
@@ -125,7 +138,11 @@ export const Creature: React.FC<Props> = ({spec: S, t, x, g, s, id, opacity = 1,
       {S.head.eye && (() => {
         const e = sc(P.headMap(S.head.eye));
         const r = (S.head.eyeR ?? 0.02) * s;
-        return <ellipse cx={e[0]} cy={e[1]} rx={r * 1.25} ry={r * 0.85} fill="#0b0708" opacity={0.9} />;
+        return <g>
+          <ellipse cx={e[0]} cy={e[1]} rx={r * 1.6} ry={r * 1.15} fill="#000" opacity={0.25} />
+          <ellipse cx={e[0]} cy={e[1]} rx={r * 1.25} ry={r * 0.9} fill="#0b0708" />
+          <circle cx={e[0] + r * 0.35} cy={e[1] - r * 0.3} r={Math.max(0.7, r * 0.32)} fill="#ffe9d2" opacity={0.85} />
+        </g>;
       })()}
     </g>
   );

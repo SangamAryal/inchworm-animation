@@ -1,4 +1,5 @@
 import {Spec} from './rig';
+import {blob, crease, light, line} from './detail';
 
 // Pronghorn in a transverse gallop. Shoulder ~0.9 m, body ~1.3 m.
 const hoof = {foot: 'hoof' as const, footH: 0.09, footL: 0.07, footW: 0.06};
@@ -20,6 +21,7 @@ export const PRONGHORN: Spec = {
     ],
   },
   tail: {root: [-0.6, 0.92], pts: [[-0.6, 0.92], [-0.66, 0.9], [-0.7, 0.86]], ws: [0.06, 0.06, 0.03], wave: 0.2, phase: 0.3},
+  fur: {len: 0.01, rough: 0.004, grain: 0.05},
   limbs: [
     {side: 'far', attach: 'rear', pivot: [-0.44, 0.78], a: 0.43, b: 0.33, wa: [0.18, 0.05], wb: [0.035, 0.035], bend: -1, ...hoof, phase: 0, reach: 0.08, sweep: 0.8, lift: 0.28, curl: 1.2, liftAt: 0.4},
     {side: 'near', attach: 'rear', pivot: [-0.42, 0.78], a: 0.43, b: 0.33, wa: [0.19, 0.05], wb: [0.035, 0.035], bend: -1, ...hoof, phase: 0.1, reach: 0.08, sweep: 0.8, lift: 0.28, curl: 1.2, liftAt: 0.4},
@@ -27,6 +29,12 @@ export const PRONGHORN: Spec = {
     {side: 'near', attach: 'front', pivot: [0.38, 0.74], a: 0.37, b: 0.31, wa: [0.13, 0.045], wb: [0.034, 0.034], bend: 1, ...hoof, phase: 0.45, reach: 0.18, sweep: 0.85, lift: 0.36, curl: 1.8, fwd0: 0.22, liftAt: 0.35},
   ],
   shapes: [
+    crease('torso', [[0.3, 1.0], [0.36, 0.84], [0.46, 0.7]], 0.025, 0.35),
+    crease('torso', [[-0.3, 0.96], [-0.34, 0.8], [-0.4, 0.68]], 0.03, 0.3),
+    light('torso', [[-0.55, 0.96], [0.0, 0.98], [0.35, 1.02], [0.2, 0.9], [-0.3, 0.88]], 0.2),
+    line('head', [[0.93, 1.14], [0.955, 1.15]], 0.007, 0.8, '#120a07', 'over'),
+    line('head', [[0.9, 1.09], [0.95, 1.095]], 0.005, 0.6, '#120a07', 'over'),
+    {frame: 'head', fill: '#1d1310', pts: [[0.42, 1.05], [0.5, 1.14], [0.6, 1.26], [0.62, 1.24], [0.52, 1.1], [0.44, 1.02]]},
     // white belly and flank, white rump patch, throat bands, dark mask, horns and ear
     {frame: 'torso', fill: WHITE, opacity: 0.85, clip: true, pts: [[0.5, 0.74], [0.3, 0.76], [0.0, 0.78], [-0.3, 0.8], [-0.5, 0.78], [-0.5, 0.55], [0.5, 0.55]]},
     {frame: 'torso', fill: WHITE, opacity: 0.9, clip: true, pts: [[-0.66, 0.95], [-0.5, 0.94], [-0.45, 0.8], [-0.52, 0.66], [-0.66, 0.68]]},

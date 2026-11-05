@@ -30,7 +30,7 @@ export type Shape = {
   clip?: boolean; // clip to the part it is attached to
   open?: boolean; stroke?: number; // open stroke instead of fill
   layer?: 'under' | 'over'; // drawn before or after the near limbs
-  soft?: boolean; // blurred edge
+  soft?: boolean | 'fine' | 'mid'; // blurred edge (fine = slight)
 };
 
 export type Spec = {
@@ -41,12 +41,13 @@ export type Spec = {
   bob: {amp: number; phase: number};
   pitch: {amp: number; phase: number; base?: number};
   head: {pivot: V; outline: V[]; nod: number; nodPhase: number; base?: number; eye?: V; eyeR?: number};
-  tail?: {root: V; pts: V[]; ws: number[]; wave: number; phase: number; frame?: 'torso'};
+  tail?: {root: V; pts: V[]; ws: number[]; wave: number; phase: number; frame?: 'torso'; color?: string};
   trunk?: {root: V; pts: V[]; ws: number[]; wave: number; phase: number};
   limbs: Limb[];
   shapes?: Shape[];
   colors: {top: string; mid: string; bottom: string; far: string; rim: string; limb?: string; limbFar?: string};
   height: number; // overall height in metres, for gradients
+  fur?: {len: number; rough: number; grain: number; round?: number}; // strand length (m), edge roughness (m), texture strength
 };
 
 export type Pose = {

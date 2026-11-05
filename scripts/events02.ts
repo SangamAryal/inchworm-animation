@@ -31,5 +31,6 @@ TL.list.forEach((r, i) => {
 });
 if (race) ev.push(...raceEvents(TL));
 const speed = Array.from({length: TL.duration}, (_, f) => (f < TL.runEnd ? TL.camSpeed(f) : 0));
-writeFileSync(process.argv[5], JSON.stringify({fps: T.fps, duration: TL.duration / T.fps, runEnd: TL.runEnd / T.fps, events: ev.sort((a, b) => a.t - b.t), speed}));
+const music = [TL.duration / T.fps, (T.hold + T.trans) / T.fps / 2, TL.holdEnd(0) / T.fps]; // length, bar, first downbeat = first pass
+writeFileSync(process.argv[5], JSON.stringify({music, fps: T.fps, duration: TL.duration / T.fps, runEnd: TL.runEnd / T.fps, events: ev.sort((a, b) => a.t - b.t), speed}));
 console.log('events', ev.length, 'duration', TL.duration / T.fps);

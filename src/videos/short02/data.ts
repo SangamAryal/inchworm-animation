@@ -21,5 +21,5 @@ export const RUNNERS: Runner[] = [
   {id: 'bat', name: 'Free-tailed bat', ref: 'a bat', kind: 'Fastest mammal in flight', kmh: 160, mph: 99, kg: 0.012, sound: 'wing', zoom: 4},
 ];
 
-export const T = {fps: 30, intro: 60, hold: 78, trans: 36, race: 210, outro: 24};
+export const T = {fps: 30, intro: 60, hold: 66, trans: 60, race: 210, outro: 24};
 export const PX_PER_M = 200;

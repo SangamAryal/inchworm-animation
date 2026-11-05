@@ -1,5 +1,6 @@
 import {V} from './geom';
 import {Shape, Spec} from './rig';
+import {blob, crease, light, line} from './detail';
 import {rng} from '../engine/noise';
 
 // Cheetah in a rotary gallop with a very flexible spine. Shoulder ~0.8 m, body 1.2 m.
@@ -35,6 +36,7 @@ export const CHEETAH: Spec = {
     ],
   },
   tail: {root: [-0.58, 0.74], pts: [[-0.58, 0.74], [-0.76, 0.68], [-0.96, 0.62], [-1.14, 0.6], [-1.3, 0.64]], ws: [0.07, 0.055, 0.05, 0.05, 0.05], wave: 0.25, phase: 0.2},
+  fur: {len: 0.008, rough: 0.005, grain: 0.06},
   limbs: [
     {side: 'far', attach: 'rear', pivot: [-0.42, 0.68], a: 0.37, b: 0.27, wa: [0.17, 0.055], wb: [0.045, 0.04], bend: -1, ...paw, phase: 0, reach: 0.12, sweep: 0.75, lift: 0.22, curl: 1.0, liftAt: 0.4},
     {side: 'near', attach: 'rear', pivot: [-0.4, 0.68], a: 0.37, b: 0.27, wa: [0.18, 0.055], wb: [0.045, 0.04], bend: -1, ...paw, phase: 0.08, reach: 0.12, sweep: 0.75, lift: 0.22, curl: 1.0, liftAt: 0.4},
@@ -42,6 +44,12 @@ export const CHEETAH: Spec = {
     {side: 'far', attach: 'front', pivot: [0.38, 0.66], a: 0.35, b: 0.24, wa: [0.12, 0.05], wb: [0.042, 0.04], bend: 1, ...paw, phase: 0.58, reach: 0.18, sweep: 0.8, lift: 0.26, curl: 1.4, fwd0: 0.2, liftAt: 0.35},
   ],
   shapes: [
+    crease('torso', [[0.3, 0.84], [0.36, 0.66], [0.46, 0.52]], 0.02, 0.35),
+    crease('torso', [[-0.3, 0.76], [-0.34, 0.62], [-0.4, 0.55]], 0.025, 0.3),
+    light('torso', [[-0.5, 0.78], [0.0, 0.8], [0.35, 0.86], [0.2, 0.74], [-0.3, 0.72]], 0.2),
+    blob('head', [[0.8, 0.76], [0.87, 0.76], [0.88, 0.71], [0.8, 0.705]], '#ead7b8', 0.6),
+    blob('head', [[0.7, 0.86], [0.76, 0.86], [0.79, 0.83], [0.72, 0.82]], '#ead7b8', 0.35),
+    line('head', [[0.82, 0.715], [0.86, 0.72]], 0.005, 0.7, '#120a07', 'over'),
     // pale belly and throat
     {frame: 'torso', fill: '#e8cfa4', opacity: 0.35, clip: true, soft: true, pts: [[0.5, 0.5], [0.2, 0.46], [-0.2, 0.56], [-0.2, 0.5], [0.2, 0.4], [0.5, 0.42]]},
     ...spots(4, 110, [-0.56, 0.45, 0.5, 0.86], 0.013, 'torso'),

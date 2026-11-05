@@ -4,7 +4,7 @@ import {V, closedPath} from '../creatures/geom';
 
 export const HZ = 1060; // horizon
 export const GROUND = 1300; // the plane the animals run on
-const W = 1080;
+const W = 1440, X0 = -360; // drawn wider than the frame so the camera can pan and zoom out
 
 const wrap = (x: number, w: number) => ((x % w) + w) % w;
 
@@ -31,7 +31,7 @@ const acacia = (x: number, y: number, h: number, seed: number, fill: string) => 
 
 const SKY = (
   <defs>
-    <linearGradient id="svSky" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="svSky" gradientUnits="userSpaceOnUse" x1="0" y1="-10" x2="0" y2="1070">
       <stop offset="0" stopColor="#2F2C44" />
       <stop offset="0.3" stopColor="#5A4A68" />
       <stop offset="0.48" stopColor="#A3757E" />
@@ -62,14 +62,14 @@ export const Savanna: React.FC<{camX: number; s: number; v: number; fps: number;
   const perFrame = (v * s) / fps;
   const R = rng(21);
   // distant ridge
-  let ridge = `M0,${HZ}`;
+  let ridge = `M${X0 - 40},${HZ}`;
   const rOff = wrap(camX * s * 0.006, 1600);
-  for (let x = -40; x <= W + 40; x += 20) {
+  for (let x = X0 - 40; x <= W + 40; x += 20) {
     const wx = x + rOff;
     const h = 26 * Math.max(0, Math.sin(wx / 260) * Math.sin(wx / 97 + 1)) + 10 * Math.sin(wx / 53) ** 2 + 6;
     ridge += ` L${x},${HZ - h}`;
   }
-  ridge += ` L${W + 40},${HZ + 2} L-40,${HZ + 2}Z`;
+  ridge += ` L${W + 40},${HZ + 2} L${X0 - 40},${HZ + 2}Z`;
 
   const treeLayer = (seed: number, n: number, depth: number, yMin: number, yMax: number, hMin: number, hMax: number, fill: string, tile: number) => {
     const T = rng(seed);
@@ -79,7 +79,7 @@ export const Savanna: React.FC<{camX: number; s: number; v: number; fps: number;
       <g>
         {items.flatMap((it, i) => [0, -tile, tile].map((k) => {
           const x = it.x - off + k;
-          if (x < -it.h * 2 || x > W + it.h * 2) return null;
+          if (x < X0 - it.h * 2 || x > W + it.h * 2) return null;
           return <g key={i + '_' + k}>{acacia(x, it.y, it.h, it.seed, fill)}</g>;
         }))}
       </g>
@@ -91,13 +91,13 @@ export const Savanna: React.FC<{camX: number; s: number; v: number; fps: number;
   return (
     <g transform={lift ? `translate(0,${lift})` : undefined}>
       {SKY}
-      <rect x={0} y={-lift - 10} width={W} height={HZ + lift + 20} fill="url(#svSky)" />
+      <rect x={X0} y={-lift - 400} width={W - X0} height={HZ + lift + 410} fill="url(#svSky)" />
       <circle cx={190} cy={HZ - 34} r={420} fill="url(#svSun)" />
       <circle cx={190} cy={HZ - 34} r={44} fill="#FFE6C2" opacity={0.95} />
       <path d={ridge} fill="#7A6070" opacity={0.75} />
       {treeLayer(5, 9, 0.025, HZ - 1, HZ + 3, 10, 18, '#5E4A58', 2400)}
-      <rect x={0} y={HZ} width={W} height={1920 - HZ + 10} fill="url(#svGround)" />
-      <rect x={0} y={HZ - 60} width={W} height={140} fill="url(#svHaze)" />
+      <rect x={X0} y={HZ} width={W - X0} height={1920 - HZ + 300} fill="url(#svGround)" />
+      <rect x={X0} y={HZ - 60} width={W - X0} height={140} fill="url(#svHaze)" />
       {treeLayer(8, 6, 0.09, HZ + 10, HZ + 24, 40, 70, '#4A3842', 2600)}
       {rows.map((y, ri) => {
         const d = (y - HZ) / (GROUND - HZ);
@@ -112,12 +112,12 @@ export const Savanna: React.FC<{camX: number; s: number; v: number; fps: number;
           <g key={ri} opacity={y > GROUND + 120 ? 0.55 : 1}>
             {soil.flatMap((p, i) => [0, -tile, tile].map((k) => {
               const x = p.x - off + k;
-              if (x < -p.w - 200 - trail || x > W + p.w + 200) return null;
+              if (x < X0 - p.w - 200 - trail || x > W + p.w + 200) return null;
               return <ellipse key={`s${i}${k}`} cx={x + trail / 2} cy={y + p.dy} rx={p.w + trail / 2} ry={p.w * 0.06 + 1} fill="#2a1c15" opacity={0.22} />;
             }))}
             {tufts.flatMap((p, i) => [0, -tile, tile].map((k) => {
               const x = p.x - off + k;
-              if (x < -60 - trail || x > W + 60) return null;
+              if (x < X0 - 60 - trail || x > W + 60) return null;
               const by = y + p.dy;
               const c = p.light > 0.55 ? '#D7A676' : p.light > 0.25 ? '#A57A58' : '#6E4E3A';
               if (trail > p.w * 0.8) {

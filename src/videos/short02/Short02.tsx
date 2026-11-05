@@ -4,7 +4,7 @@ import {Savanna, GROUND} from '../../look/Savanna';
 import {Creature} from '../../creatures/Creature';
 import {SPECS} from '../../creatures';
 import {PX_PER_M, T} from './data';
-import {makeTimeline, ms} from './timeline';
+import {lane, makeTimeline, ms} from './timeline';
 import {Multiplier, ScaleBar, SpeedLabel, Title} from './Labels';
 import {Bat} from '../../creatures/Bat';
 import {Race} from './race';
@@ -25,8 +25,10 @@ export const Short02: React.FC<Short02Props> = ({ids, race, intro, audio}) => {
   const t = f / T.fps;
 
   const visible = TL.list.map((r, i) => ({r, i, x: TL.screenX(i, f)})).filter((o) => o.x !== null) as {r: typeof TL.list[0]; i: number; x: number}[];
-  // the newer (faster) runner is drawn in front
-  visible.sort((a, b) => a.i - b.i);
+  // far lane first
+  visible.sort((a, b) => lane(a.i).d - lane(b.i).d);
+  const cam = TL.camera(Math.min(f, TL.duration - 1));
+  const camT = `translate(540,1000) scale(${cam.z}) translate(${-cam.fx},${-cam.fy})`;
 
   const labelOp = (i: number) => {
     const inT = p - i; // 0 at hold
@@ -42,22 +44,26 @@ export const Short02: React.FC<Short02Props> = ({ids, race, intro, audio}) => {
   return (
     <AbsoluteFill style={{background: '#1b1418', opacity: endFade}}>
       <svg width={1080} height={1920} style={{position: 'absolute'}}>
-        <Savanna camX={camX} s={s} v={v} fps={T.fps} />
+        <g transform={camT}>
+          <Savanna camX={camX} s={s} v={v} fps={T.fps} />
+          <g opacity={mainOp}>
+            {visible.map(({r, i, x}) => r.id === 'bat'
+              ? <Bat key={r.id} t={t + i * 0.37} x={x} y={GROUND - 300} s={s * zoom(r)} id={`a${i}`} groundY={GROUND} />
+              : <Creature key={r.id} spec={SPECS[r.id]} t={t + i * 0.37} x={x} g={lane(i).y} s={s * lane(i).d} id={`a${i}`} />)}
+          </g>
+        </g>
         <g opacity={mainOp}>
-        {visible.map(({r, i, x}) => r.id === 'bat'
-          ? <Bat key={r.id} t={t + i * 0.37} x={x} y={GROUND - 300} s={s * zoom(r)} id={`a${i}`} groundY={GROUND} />
-          : <Creature key={r.id} spec={SPECS[r.id]} t={t + i * 0.37} x={x} g={GROUND} s={s * zoom(r)} id={`a${i}`} />)}
-        {visible.map(({r, i}) => labelOp(i) > 0.01 && <SpeedLabel key={'l' + i} r={r} opacity={labelOp(i)} />)}
-        {titleOp > 0.01 && <Title lines={['How fast can', 'mammals run?']} opacity={titleOp} />}
-        {multOp > 0.01 && <Multiplier value={TL.list[multI].kmh / TL.list[multI - 1].kmh} than={TL.list[multI - 1].ref} opacity={multOp} />}
+          {visible.map(({r, i}) => labelOp(i) > 0.01 && <SpeedLabel key={'l' + i} r={r} opacity={labelOp(i)} y={1505} />)}
+          {titleOp > 0.01 && <Title lines={['How fast can', 'mammals run?']} opacity={titleOp} />}
+          {multOp > 0.01 && <Multiplier value={TL.list[multI].kmh / TL.list[multI - 1].kmh} than={TL.list[multI - 1].ref} opacity={multOp} />}
         </g>
         {(() => {
           const batK = TL.list.findIndex((r) => r.id === 'bat');
           const bz = batK < 0 ? 0 : interpolate(p, [batK - 0.6, batK - 0.4], [0, 1], clamp);
           const base = interpolate(f, [20, 40], [0, 1], clamp) * interpolate(f, [TL.runEnd, TL.runEnd + 10], [1, 0], clamp);
           return <>
-            {bz < 1 && <ScaleBar len={s} text="1 m" opacity={base * (1 - bz)} />}
-            {bz > 0 && <ScaleBar len={s * 4 * 0.2} text="20 cm · bat shown 4× larger" opacity={base * bz} />}
+            {bz < 1 && <ScaleBar len={s * lane(Math.round(p)).d * cam.z} text="1 m" opacity={base * (1 - bz)} />}
+            {bz > 0 && <ScaleBar len={s * 4 * 0.2 * cam.z} text="20 cm · bat shown 4× larger" opacity={base * bz} />}
           </>;
         })()}
         {race && <Race TL={TL} f={f} />}
