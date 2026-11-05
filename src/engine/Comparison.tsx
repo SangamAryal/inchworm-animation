@@ -65,7 +65,7 @@ export const Comparison: React.FC<{items: Item[]; timing: Timing; title: [string
       <svg width={1080} height={1920} style={{position: 'absolute'}}>
         {vis.map((v) => v.labOp > 0.01 && <DuskLabel key={'l' + v.i} item={v.it} x={v.x} opacity={v.labOp} highlight={v.i === curK + 1 || (p < 0 && v.i === 0)} />)}
         {titleOp > 0.01 && <DuskTitle lines={title} opacity={titleOp} />}
-        {multOp > 0.01 && <DuskMultiplier value={fmtRatio(items[curK + 1].km / items[curK].km)} opacity={multOp} />}
+        {multOp > 0.01 && <DuskMultiplier value={fmtRatio(items[curK + 1].km / items[curK].km)} than={items[curK].ref ?? items[curK].name} opacity={multOp} />}
         <g opacity={interpolate(f, [20, 40], [0, 1], clamp)}><DuskScaleBar len={bar.len} text={fmtSize(bar.km)} /></g>
       </svg>
     </AbsoluteFill>

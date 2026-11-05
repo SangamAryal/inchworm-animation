@@ -7,7 +7,7 @@ import {SHORT01_ITEMS, SHORT01_TIMING} from './items';
 // camera move (one object per 3.8 s) lands on a downbeat.
 export const Short01: React.FC = () => (
   <>
-    <Comparison items={SHORT01_ITEMS} timing={SHORT01_TIMING} title={['From a neutron star', 'to the biggest black hole']} />
+    <Comparison items={SHORT01_ITEMS} timing={SHORT01_TIMING} title={['Size comparison of', 'cosmic objects']} />
     <Audio src={staticFile('audio/short01-music.wav')} volume={0.8} />
   </>
 );

@@ -133,10 +133,10 @@ export const DuskLabel: React.FC<{item: Item; x: number; opacity: number; highli
   );
 };
 
-export const DuskMultiplier: React.FC<{value: string; opacity: number}> = ({value, opacity}) => (
+export const DuskMultiplier: React.FC<{value: string; than: string; opacity: number}> = ({value, than, opacity}) => (
   <g opacity={opacity}>
     <text x={540} y={360} textAnchor="middle" fontFamily="Inter" fontWeight={300} fontSize={150} fill={CREAM} letterSpacing={-4}>{value}<tspan fill={ACC}>×</tspan></text>
-    <text x={540} y={430} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={22} letterSpacing={5} fill={MUTE}>BIGGER</text>
+    <text x={540} y={430} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={28} letterSpacing={4} fill={MUTE}>{`BIGGER THAN ${than.toUpperCase()}`}</text>
   </g>
 );
 
