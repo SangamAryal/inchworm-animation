@@ -1,0 +1,20 @@
+{
+  "name": "inchworm-animation",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:short01": "remotion render src/index.ts short01 out/short01.mp4 --gl=swangle",
+    "music": "python3 audio/make_beat.py 41.5 1.9 3.4 public/audio/short01-music.wav"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "@remotion/cli": "^4.0.300",
+    "@types/react": "^19.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.300",
+    "typescript": "^5.8.3"
+  }
+}
