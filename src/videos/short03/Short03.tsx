@@ -32,7 +32,7 @@ const ridge = (seed: number, y: number, amp: number, len = 2800) => {
 };
 
 // Dusk horizon: violet-to-peach sky, low sun on the left, parallax hills, dark plain.
-const Background: React.FC<{drift: number}> = ({drift}) => {
+export const Background: React.FC<{drift: number}> = ({drift}) => {
   const R = rng(4);
   const stars = Array.from({length: 46}, () => ({x: R() * 1080, y: R() * 620, s: 0.8 + R() * 1.6, o: 0.2 + R() * 0.5}));
   const layer = (seed: number, y: number, amp: number, fill: string, depth: number) => {

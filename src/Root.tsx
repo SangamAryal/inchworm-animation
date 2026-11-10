@@ -2,6 +2,7 @@ import React from 'react';
 import {Composition, Still} from 'remotion';
 import {Cover01, Thumb01} from './thumbs/Thumb01';
 import {Cover02, Thumb02} from './thumbs/Thumb02';
+import {Cover03, Thumb03} from './thumbs/Thumb03';
 import {Banner, Profile} from './thumbs/ChannelArt';
 import {Short01} from './videos/short01/Short01';
 import {Short02, short02Duration} from './videos/short02/Short02';
@@ -28,6 +29,8 @@ export const Root: React.FC = () => (
     <Composition id="short02" component={Short02} width={1080} height={1920} fps={30}
       durationInFrames={short02Duration({ids: ALL02, race: false})}
       defaultProps={{ids: ALL02, race: false, audio: 'audio/short02.wav'}} />
+    <Still id="thumb03" component={Thumb03} width={1280} height={720} />
+    <Still id="cover03" component={Cover03} width={1080} height={1920} />
     <Composition id="short03" component={Short03} width={1080} height={1920} fps={30}
       durationInFrames={short03Duration()} defaultProps={{audio: 'audio/short03.wav'}} />
     <Composition id="short03silent" component={Short03} width={1080} height={1920} fps={30}
