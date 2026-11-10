@@ -5,6 +5,7 @@ import {Cover02, Thumb02} from './thumbs/Thumb02';
 import {Banner, Profile} from './thumbs/ChannelArt';
 import {Short01} from './videos/short01/Short01';
 import {Short02, short02Duration} from './videos/short02/Short02';
+import {Short03, short03Duration} from './videos/short03/Short03';
 import {RigTest} from './videos/short02/RigTest';
 import {makeLayout} from './engine/layout';
 import {SHORT01_ITEMS, SHORT01_TIMING} from './videos/short01/items';
@@ -27,6 +28,10 @@ export const Root: React.FC = () => (
     <Composition id="short02" component={Short02} width={1080} height={1920} fps={30}
       durationInFrames={short02Duration({ids: ALL02, race: false})}
       defaultProps={{ids: ALL02, race: false, audio: 'audio/short02.wav'}} />
+    <Composition id="short03" component={Short03} width={1080} height={1920} fps={30}
+      durationInFrames={short03Duration()} defaultProps={{audio: 'audio/short03.wav'}} />
+    <Composition id="short03silent" component={Short03} width={1080} height={1920} fps={30}
+      durationInFrames={short03Duration()} defaultProps={{}} />
     <Composition id="rigtest" component={RigTest} width={1080} height={1920} fps={30} durationInFrames={300} defaultProps={{animal: 'horse', scale: 140}} />
   </>
 );
