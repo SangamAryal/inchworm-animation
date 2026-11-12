@@ -9,7 +9,7 @@ import {Runner} from './data';
 export const CREAM = '#F6ECDF', MUTE = '#D9C4B4', ACC = '#F6B985';
 const shadow = {filter: 'drop-shadow(0 2px 6px rgba(20,10,8,0.55))'};
 
-export const SpeedLabel: React.FC<{r: Runner; opacity: number; y?: number}> = ({r, opacity, y = GROUND + 150}) => (
+export const SpeedLabel: React.FC<{r: Pick<Runner, 'kind' | 'name' | 'kmh' | 'mph'>; opacity: number; y?: number}> = ({r, opacity, y = GROUND + 150}) => (
   <g opacity={opacity} style={shadow}>
     <text x={540} y={y} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={22} letterSpacing={3.5} fill={MUTE}>{r.kind.toUpperCase()}</text>
     <text x={540} y={y + 62} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={54} fill={CREAM}>{r.name}</text>
@@ -18,7 +18,7 @@ export const SpeedLabel: React.FC<{r: Runner; opacity: number; y?: number}> = ({
   </g>
 );
 
-export const fmt = (n: number) => (Math.round(n * 10) / 10).toString();
+export const fmt = (n: number) => (Math.round(n * 10) / 10).toLocaleString('en-US');
 
 export const Multiplier: React.FC<{value: number; than: string; opacity: number}> = ({value, than, opacity}) => (
   <g opacity={opacity} style={shadow}>

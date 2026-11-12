@@ -38,3 +38,18 @@ Event-horizon diameter = 4GM/c^2 = 5.906 km per solar mass. Black-hole masses (e
 | Brazilian free-tailed bat | 160 km/h (99 mph), 44.5 m/s | McCracken et al. (2016), "Airplane tracking documents the fastest flight speeds recorded for bats", Royal Society Open Science 3, 160398 (ground speed in level flight) |
 
 All animals are drawn in code (src/creatures/), no images. Music is synthesised in code (audio/make_beat.py); no sound effects.
+
+## Short 04: how fast can a car go?
+
+| Vehicle | Value used | Source |
+|---|---|---|
+| Benz Patent-Motorwagen (1886) | 16 km/h (10 mph) | Mercedes-Benz Classic, Benz Patent-Motorwagen vehicle data |
+| Ford Model T (1908) | 72 km/h (45 mph), top of the 40-45 mph range | Ford Motor Company heritage, Model T facts |
+| Volkswagen Beetle 1200, 34 PS (1960s) | 115 km/h (71 mph) | Volkswagen Newsroom, Beetle 1200 / 1200 L vehicle data |
+| Ferrari F40 (1987) | 324 km/h (201 mph) | Ferrari, F40 official specifications |
+| Formula 1 car | 372.5 km/h (231.5 mph) | Guinness World Records, "Fastest speed outright in a Formula One Grand Prix" (Valtteri Bottas, Williams, 2016) |
+| McLaren F1 (1998) | 386.4 km/h (240.1 mph) | Guinness World Records production-car record, Ehra-Lessien, 31 March 1998 (Andy Wallace) |
+| Bugatti Chiron Super Sport 300+ (2019) | 490.5 km/h (304.8 mph), 490.484 km/h one way | Bugatti press release, Ehra-Lessien, 2 August 2019 (Andy Wallace) |
+| ThrustSSC (1997) | 1,228 km/h (763 mph), 1,227.985 km/h, Mach 1.02 | FIA World Land Speed Record, Black Rock Desert, 15 October 1997 (Andy Green) |
+
+Profiles are drawn in code from published length, height, wheelbase and tyre size (src/vehicles/specs.ts). The F1 car has no team livery. The camera pulls back for ThrustSSC (16.5 m long); the scale bar changes from 1 m to 5 m.

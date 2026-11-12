@@ -9,7 +9,9 @@
     "sound:short02": "npx tsx scripts/events02.ts '[\"elephant\",\"human\",\"zebra\",\"bear\",\"impala\",\"greyhound\",\"horse\",\"lion\",\"pronghorn\",\"cheetah\",\"bat\"]' 0 60 out/ev-short02.json && python3 audio/make_beat.py $(python3 -c \"import json;print(*json.load(open('out/ev-short02.json'))['music'])\") out/music-short02.wav && python3 audio/normalize.py out/music-short02.wav public/audio/short02.wav",
     "render:short02": "remotion render src/index.ts short02 out/short02.mp4",
     "sound:short03": "python3 audio/make_beat.py 49.5 2.5 4.3 out/music-short03.wav && python3 audio/normalize.py out/music-short03.wav public/audio/short03.wav",
-    "render:short03": "remotion render src/index.ts short03 out/short03.mp4"
+    "render:short03": "remotion render src/index.ts short03 out/short03.mp4",
+    "sound:short04": "python3 audio/make_beat.py 59.1 1.825 6.8 out/music-short04.wav && python3 audio/normalize.py out/music-short04.wav public/audio/short04.wav",
+    "render:short04": "remotion render src/index.ts short04 out/short04.mp4"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",
