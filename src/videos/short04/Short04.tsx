@@ -52,7 +52,7 @@ export const Short04: React.FC<Short04Props> = ({ids, intro, audio}) => {
           ))}
         </g>
         {visible.map(({r, i}) => labelOp(i) > 0.01 && <SpeedLabel key={'l' + i} r={r} opacity={labelOp(i)} y={1505} />)}
-        {titleOp > 0.01 && <Title lines={['How fast can', 'a car go?']} opacity={titleOp} />}
+        {titleOp > 0.01 && <Title lines={['Automobiles', 'speed comparison']} opacity={titleOp} />}
         {multOp > 0.01 && <Multiplier value={TL.list[multI].kmh / TL.list[multI - 1].kmh} than={TL.list[multI - 1].ref} opacity={multOp} />}
         <ScaleBar len={s * barM * lane(Math.round(p)).d * cam.z} text={`${barM} m`} opacity={barOp} />
       </svg>
