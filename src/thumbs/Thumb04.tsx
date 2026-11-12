@@ -31,8 +31,7 @@ export const Thumb04: React.FC = () => (
     <Scene w={1280} h={720} tf="translate(640,470) scale(1.15) translate(-540,-1250)" benzX={230} jetX={800} sb={120} sj={42} />
     <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(40,28,48,.82) 0%, rgba(40,28,48,.45) 30%, rgba(40,28,48,0) 52%)'}} />
     <div style={{position: 'absolute', left: 56, top: 44, fontFamily: 'Inter', color: CREAM, textShadow: shadow}}>
-      <div style={{fontWeight: 500, fontSize: 24, letterSpacing: 6, color: ACC}}>8 CARS · REAL TOP SPEEDS</div>
-      <div style={{fontWeight: 600, fontSize: 70, lineHeight: 1.05, marginTop: 12}}>Automobiles<br /><span style={{color: ACC}}>speed comparison</span></div>
+      <div style={{fontWeight: 600, fontSize: 70, lineHeight: 1.05}}>Automobiles<br /><span style={{color: ACC}}>speed comparison</span></div>
     </div>
     <Tag x={250} y={600} name="The first car" kmh="16" size={42} />
     <Tag x={900} y={590} name="ThrustSSC" kmh="1,228" size={50} hi />
@@ -44,8 +43,7 @@ export const Cover04: React.FC = () => (
     <Scene w={1080} h={1920} tf="translate(540,1250) scale(1.9) translate(-540,-1300)" benzX={360} jetX={560} sb={72} sj={33} />
     <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(40,28,48,.55) 0%, rgba(40,28,48,.5) 30%, rgba(40,28,48,0) 52%)'}} />
     <div style={{position: 'absolute', left: 0, right: 0, top: 250, textAlign: 'center', fontFamily: 'Inter', color: CREAM, textShadow: shadow}}>
-      <div style={{fontWeight: 500, fontSize: 32, letterSpacing: 8, color: ACC}}>8 CARS · REAL TOP SPEEDS</div>
-      <div style={{fontWeight: 300, fontSize: 96, lineHeight: 1.1, marginTop: 26}}>Automobiles</div>
+      <div style={{fontWeight: 300, fontSize: 96, lineHeight: 1.1}}>Automobiles</div>
       <div style={{fontWeight: 600, fontSize: 96, lineHeight: 1.1}}>speed comparison</div>
     </div>
     <Tag x={540} y={830} name="ThrustSSC" kmh="1,228" size={92} hi />
