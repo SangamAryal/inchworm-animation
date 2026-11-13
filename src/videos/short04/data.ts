@@ -19,6 +19,9 @@ export const CARS: Car[] = [
   {id: 'thrust', name: 'ThrustSSC', ref: 'a jet car', kind: 'Land speed record · Mach 1.02', kmh: 1228, mph: 763},
 ];
 
-export const T = {fps: 30, intro: 60, hold: 144, trans: 75, outro: 36};
-export const PX_PER_M = 145; // shared scale
+// v3 pacing: a 54-frame cold open, then each car leads for 100 frames and the next overtakes over 62,
+// so a new car arrives every 162 frames = 3 bars of 1.8 s (133 BPM). The first car leads only 54 frames.
+export const COLD = 54;
+export const T = {fps: 30, intro: -46, hold: 100, trans: 62, outro: 36};
+export const PX_PER_M = 170; // shared scale
 export const PX_PER_M_JET = 48; // the camera pulls back for the 16.5 m jet car

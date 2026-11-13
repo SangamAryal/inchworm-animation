@@ -1,6 +1,6 @@
 """Space lo-fi beat for Shorts, made only with numpy/scipy (no samples, no licences).
 
-Usage: python3 audio/make_beat.py [seconds] [bar_seconds] [first_downbeat_s] [out.wav]
+Usage: python3 audio/make_beat.py [seconds] [bar_seconds] [first_downbeat_s] [out.wav] [full]
 
 The bar length and first downbeat are chosen so camera moves land on downbeats
 (Short 01: one object every 3.8 s = 2 bars of 1.9 s, beat drops at 3.4 s).
@@ -16,6 +16,7 @@ dur = float(sys.argv[1]) if len(sys.argv) > 1 else 41.5
 bar = float(sys.argv[2]) if len(sys.argv) > 2 else 1.9
 t0 = float(sys.argv[3]) if len(sys.argv) > 3 else 3.4
 out = sys.argv[4] if len(sys.argv) > 4 else 'public/audio/short01-music.wav'
+full = len(sys.argv) > 5 and sys.argv[5] == 'full'  # full drums from the first bar (no ease-in)
 beat = bar / 4
 rng = np.random.default_rng(11)
 N = int(SR * (dur + 4))
@@ -113,7 +114,7 @@ for b in range(nbars):
     # drums (first bar after the drop: kick only, so it eases in)
     put('kick', tb, kick(), 0.9)
     put('kick', tb + beat * 2.5, kick(), 0.55)
-    if b >= 1:
+    if b >= 1 or full:
         put('clap', tb + beat, clap(), 0.35)
         put('clap', tb + beat * 3, clap(), 0.35)
         for i in range(8):

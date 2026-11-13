@@ -1,18 +1,18 @@
 import React from 'react';
-import {AbsoluteFill, Audio, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Audio, interpolate, Sequence, staticFile, useCurrentFrame} from 'remotion';
 import {Highway} from '../../look/Highway';
 import {Vehicle} from '../../vehicles/Vehicle';
 import {VEHICLES} from '../../vehicles/specs';
-import {T} from './data';
+import {COLD, T} from './data';
 import {lane, makeTimeline, ms} from './timeline';
-import {Multiplier, ScaleBar, SpeedLabel, Title} from '../short02/Labels';
+import {ACC, CREAM, Multiplier, ScaleBar, SpeedLabel, Title} from '../short02/Labels';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 export const ALL04 = ['benz', 'modelT', 'beetle', 'f40', 'f1', 'mclaren', 'chiron', 'thrust'];
 
 export type Short04Props = {ids: string[]; intro?: number; audio?: string};
 
-export const Short04: React.FC<Short04Props> = ({ids, intro, audio}) => {
+const Main: React.FC<Short04Props> = ({ids, intro}) => {
   const f = useCurrentFrame();
   const TL = makeTimeline(ids, {intro});
   const fr = Math.min(f, TL.duration);
@@ -56,9 +56,42 @@ export const Short04: React.FC<Short04Props> = ({ids, intro, audio}) => {
         {multOp > 0.01 && <Multiplier value={TL.list[multI].kmh / TL.list[multI - 1].kmh} than={TL.list[multI - 1].ref} opacity={multOp} />}
         <ScaleBar len={s * barM * lane(Math.round(p)).d * cam.z} text={`${barM} m`} opacity={barOp} />
       </svg>
-      {audio && <Audio src={staticFile(audio)} />}
     </AbsoluteFill>
   );
 };
 
-export const short04Duration = (p: Short04Props) => makeTimeline(p.ids, {intro: p.intro}).duration;
+// Cold open: the fastest car first, so the payoff is promised in the first second.
+const Cold: React.FC = () => {
+  const f = useCurrentFrame();
+  const t = f / T.fps, v = 341, s = 46;
+  const x = 560 - 40 * Math.sin((f / COLD) * Math.PI); // a slight surge forward
+  const shadow = {filter: 'drop-shadow(0 2px 6px rgba(20,10,8,0.55))'};
+  const pop = interpolate(f, [0, 6], [0.9, 1], {extrapolateRight: 'clamp'});
+  return (
+    <AbsoluteFill style={{background: '#1b1418'}}>
+      <svg width={1080} height={1920} style={{position: 'absolute'}}>
+        <g transform="translate(540,1000) scale(1.08) translate(-540,-1060)">
+          <Highway camX={v * t + 500} s={s} v={v} fps={T.fps} />
+          <Vehicle spec={VEHICLES.thrust} t={t} x={x} g={1350} s={s * 1.2} v={v} id="cold" />
+        </g>
+        <rect x={0} y={0} width={1080} height={820} fill="url(#coldShade)" />
+        <defs><linearGradient id="coldShade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#281c30" stopOpacity="0.8" /><stop offset="0.6" stopColor="#281c30" stopOpacity="0.45" /><stop offset="1" stopColor="#281c30" stopOpacity="0" /></linearGradient></defs>
+        <Title lines={['Automobiles', 'speed comparison']} opacity={1} />
+        <g style={shadow} transform={`translate(540,560) scale(${pop}) translate(-540,-560)`}>
+          <text x={540} y={580} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={104} fill={CREAM}>16 <tspan fill={ACC}>→</tspan> 1,228</text>
+          <text x={540} y={640} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={30} letterSpacing={5} fill={CREAM}>KM/H · 8 CARS</text>
+        </g>
+      </svg>
+    </AbsoluteFill>
+  );
+};
+
+export const Short04: React.FC<Short04Props> = ({ids, intro, audio}) => (
+  <AbsoluteFill style={{background: '#1b1418', filter: 'contrast(1.08) saturate(1.15)'}}>
+    <Sequence durationInFrames={COLD}><Cold /></Sequence>
+    <Sequence from={COLD}><Main ids={ids} intro={intro} /></Sequence>
+    {audio && <Audio src={staticFile(audio)} />}
+  </AbsoluteFill>
+);
+
+export const short04Duration = (p: Short04Props) => COLD + makeTimeline(p.ids, {intro: p.intro}).duration;

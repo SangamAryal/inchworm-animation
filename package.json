@@ -10,7 +10,7 @@
     "render:short02": "remotion render src/index.ts short02 out/short02.mp4",
     "sound:short03": "python3 audio/make_beat.py 49.5 2.5 4.3 out/music-short03.wav && python3 audio/normalize.py out/music-short03.wav public/audio/short03.wav",
     "render:short03": "remotion render src/index.ts short03 out/short03.mp4",
-    "sound:short04": "python3 audio/make_beat.py 59.1 1.825 6.8 out/music-short04.wav && python3 audio/normalize.py out/music-short04.wav public/audio/short04.wav",
+    "sound:short04": "python3 audio/make_beat.py 42.6 1.8 0 out/music-short04.wav full && python3 audio/normalize.py out/music-short04.wav public/audio/short04.wav",
     "render:short04": "remotion render src/index.ts short04 out/short04.mp4"
   },
   "dependencies": {
