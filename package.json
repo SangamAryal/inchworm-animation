@@ -11,7 +11,9 @@
     "sound:short03": "python3 audio/make_beat.py 49.5 2.5 4.3 out/music-short03.wav && python3 audio/normalize.py out/music-short03.wav public/audio/short03.wav",
     "render:short03": "remotion render src/index.ts short03 out/short03.mp4",
     "sound:short04": "python3 audio/make_beat.py 42.6 1.8 0 out/music-short04.wav full && python3 audio/normalize.py out/music-short04.wav public/audio/short04.wav",
-    "render:short04": "remotion render src/index.ts short04 out/short04.mp4"
+    "render:short04": "remotion render src/index.ts short04 out/short04.mp4",
+    "sound:short05": "python3 audio/make_beat.py 42.6 1.8 0 out/music-short05.wav full lift && python3 audio/normalize.py out/music-short05.wav public/audio/short05.wav",
+    "render:short05": "remotion render src/index.ts short05 out/short05.mp4"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",

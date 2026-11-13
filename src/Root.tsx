@@ -4,12 +4,15 @@ import {Cover01, Thumb01} from './thumbs/Thumb01';
 import {Cover02, Thumb02} from './thumbs/Thumb02';
 import {Cover03, Thumb03} from './thumbs/Thumb03';
 import {Cover04, Thumb04} from './thumbs/Thumb04';
+import {Cover05, Thumb05} from './thumbs/Thumb05';
 import {Banner, Profile} from './thumbs/ChannelArt';
 import {Short01} from './videos/short01/Short01';
 import {Short02, short02Duration} from './videos/short02/Short02';
 import {Short03, short03Duration} from './videos/short03/Short03';
 import {VehicleTest} from './videos/short04/VehicleTest';
 import {Short04, short04Duration, ALL04} from './videos/short04/Short04';
+import {AircraftTest} from './videos/short05/AircraftTest';
+import {Short05, short05Duration, ALL05} from './videos/short05/Short05';
 import {RigTest} from './videos/short02/RigTest';
 import {makeLayout} from './engine/layout';
 import {SHORT01_ITEMS, SHORT01_TIMING} from './videos/short01/items';
@@ -45,6 +48,13 @@ export const Root: React.FC = () => (
     <Composition id="short04silent" component={Short04} width={1080} height={1920} fps={30}
       durationInFrames={short04Duration({ids: ALL04})} defaultProps={{ids: ALL04}} />
     <Composition id="vtest" component={VehicleTest} width={1080} height={1920} fps={30} durationInFrames={60} defaultProps={{speed: 2}} />
+    <Still id="thumb05" component={Thumb05} width={1280} height={720} />
+    <Still id="cover05" component={Cover05} width={1080} height={1920} />
+    <Composition id="short05" component={Short05} width={1080} height={1920} fps={30}
+      durationInFrames={short05Duration({ids: ALL05})} defaultProps={{ids: ALL05, audio: 'audio/short05.wav'}} />
+    <Composition id="short05silent" component={Short05} width={1080} height={1920} fps={30}
+      durationInFrames={short05Duration({ids: ALL05})} defaultProps={{ids: ALL05}} />
+    <Composition id="atest" component={AircraftTest} width={1080} height={1920} fps={30} durationInFrames={60} />
     <Composition id="rigtest" component={RigTest} width={1080} height={1920} fps={30} durationInFrames={300} defaultProps={{animal: 'horse', scale: 140}} />
   </>
 );

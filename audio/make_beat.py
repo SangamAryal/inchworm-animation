@@ -1,6 +1,6 @@
 """Space lo-fi beat for Shorts, made only with numpy/scipy (no samples, no licences).
 
-Usage: python3 audio/make_beat.py [seconds] [bar_seconds] [first_downbeat_s] [out.wav] [full]
+Usage: python3 audio/make_beat.py [seconds] [bar_seconds] [first_downbeat_s] [out.wav] [full] [lift]
 
 The bar length and first downbeat are chosen so camera moves land on downbeats
 (Short 01: one object every 3.8 s = 2 bars of 1.9 s, beat drops at 3.4 s).
@@ -94,6 +94,13 @@ chords = [  # root (bass), voicing
     (41, [57, 60, 64, 65]),  # Fmaj7
     (36, [55, 57, 60, 64]),  # C6
 ]
+if len(sys.argv) > 6 and sys.argv[6] == 'lift':  # brighter, climbing progression (Short 05)
+    chords = [
+        (45, [57, 60, 64, 67]),  # Am7
+        (41, [57, 60, 64, 65]),  # Fmaj7
+        (36, [55, 60, 64, 67]),  # C
+        (43, [55, 59, 62, 69]),  # G6/9
+    ]
 # intro: pads only, from 0 to the first downbeat
 for m in chords[0][1]:
     put('pad', 0.0, pad(hz(m), t0 + 0.3), 0.06)
@@ -142,7 +149,7 @@ wet *= 0.25 / (np.max(np.abs(wet)) + 1e-9) * (np.max(np.abs(mix)) + 1e-9)
 y = mix + wet
 y = y[:int(dur * SR)]
 t = np.arange(len(y)) / SR
-y *= np.minimum(np.minimum(t / 0.8, 1), np.clip((dur - t) / 2.0, 0, 1))
+y *= np.minimum(np.minimum(t / (0.02 if full else 0.8), 1), np.clip((dur - t) / 2.0, 0, 1))
 y = np.tanh(y / (np.max(np.abs(y)) + 1e-9) * 1.3) / np.tanh(1.3) * 0.6
 st = np.stack([y, np.roll(y, int(0.007 * SR))], axis=1)
 with wave.open(out, 'wb') as w:

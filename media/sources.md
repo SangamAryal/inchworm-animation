@@ -53,3 +53,18 @@ All animals are drawn in code (src/creatures/), no images. Music is synthesised 
 | ThrustSSC (1997) | 1,228 km/h (763 mph), 1,227.985 km/h, Mach 1.02 | FIA World Land Speed Record, Black Rock Desert, 15 October 1997 (Andy Green) |
 
 Profiles are drawn in code from published length, height, wheelbase and tyre size (src/vehicles/specs.ts). The F1 car has no team livery. The camera pulls back for ThrustSSC (16.5 m long); the scale bar changes from 1 m to 5 m.
+
+## Short 05: how fast can a flying machine go?
+
+| Machine | Value used | Source |
+|---|---|---|
+| Wright Flyer (1903) | 48 km/h (30 mph), estimated top speed | US National Park Service, "The Wright Flyer" (nps.gov/articles/wrightflyer.htm) |
+| Ryan NYP "Spirit of St. Louis" (1927) | 214 km/h (133 mph), top speed | Ryan NYP specifications (Wikipedia, citing the Smithsonian National Air and Space Museum) |
+| Supermarine Spitfire F Mk IX (1942) | 657 km/h (408 mph) at 25,000 ft | historyofwar.org, "Supermarine Spitfire Mk IX" (table; text gives 409 mph at 28,000 ft) |
+| Boeing 747-400 | 907 km/h (564 mph): Mach 0.85 design cruise at 35,000 ft (ISA speed of sound 576 kt) | Boeing, "747-400 Airplane Characteristics for Airport Planning" (0.85 Mach cruise) |
+| Concorde | 2,180 km/h (1,354 mph), Mach 2.04 cruise | Key.Aero, "Concorde" |
+| Lockheed SR-71 Blackbird | 3,529.6 km/h (2,193.2 mph), absolute speed record, 28 July 1976 (Joersz and Morgan) | US Air Force, "SR-71 pilots, crew relive absolute speed record" (af.mil) |
+| North American X-15A-2 | 7,274 km/h (4,520 mph), Mach 6.7, 3 October 1967 (Pete Knight) | US Air Force Life Cycle Management Center, "Flashback: X-15" |
+| Space Shuttle orbiter | 28,000 km/h (17,500 mph), orbital speed | NASA Kennedy Space Center FAQ |
+
+The 747 and Concorde figures are cruise speeds, the others are top or record speeds. Profiles are drawn in code from published lengths (src/aircraft/specs.ts), with no airline or squadron markings; each machine is drawn at its own scale so it fills the frame, and the scale bar shows the change. Earth seen from orbit uses public/textures/earth-strip.jpg, a crop of the NASA Blue Marble and cloud maps above. Background motion speed is compressed (v^0.55) so both 48 and 28,000 km/h read as motion.
