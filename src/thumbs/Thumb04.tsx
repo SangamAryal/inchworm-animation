@@ -26,27 +26,33 @@ const Scene: React.FC<{tf: string; w: number; h: number; benzX: number; jetX: nu
   </svg>
 );
 
+const grade = {filter: 'contrast(1.1) saturate(1.2)'};
+const Hook: React.FC<{size: number; align?: 'left' | 'center'}> = ({size, align = 'center'}) => (
+  <div style={{fontFamily: 'Inter', fontWeight: 700, fontSize: size, lineHeight: 1, color: CREAM, textAlign: align, letterSpacing: -2}}>
+    16 <span style={{color: ACC}}>→</span> 1,228<span style={{fontSize: size * 0.32, fontWeight: 600, letterSpacing: 2, marginLeft: size * 0.12}}>KM/H</span>
+  </div>
+);
+
 export const Thumb04: React.FC = () => (
-  <AbsoluteFill style={{background: '#1b1418', overflow: 'hidden'}}>
-    <Scene w={1280} h={720} tf="translate(640,470) scale(1.15) translate(-540,-1250)" benzX={230} jetX={800} sb={120} sj={42} />
-    <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(40,28,48,.82) 0%, rgba(40,28,48,.45) 30%, rgba(40,28,48,0) 52%)'}} />
-    <div style={{position: 'absolute', left: 56, top: 44, fontFamily: 'Inter', color: CREAM, textShadow: shadow}}>
-      <div style={{fontWeight: 600, fontSize: 70, lineHeight: 1.05}}>Automobiles<br /><span style={{color: ACC}}>speed comparison</span></div>
+  <AbsoluteFill style={{background: '#1b1418', overflow: 'hidden', ...grade}}>
+    <Scene w={1280} h={720} tf="translate(640,520) scale(1.35) translate(-540,-1300)" benzX={235} jetX={720} sb={110} sj={40} />
+    <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(36,24,44,.9) 0%, rgba(36,24,44,.6) 32%, rgba(36,24,44,0) 55%)'}} />
+    <div style={{position: 'absolute', left: 56, top: 40, color: CREAM, textShadow: shadow}}>
+      <div style={{fontFamily: 'Inter', fontWeight: 600, fontSize: 44, letterSpacing: 1}}>Automobiles speed comparison</div>
+      <div style={{marginTop: 14}}><Hook size={128} align="left" /></div>
     </div>
-    <Tag x={250} y={600} name="The first car" kmh="16" size={42} />
-    <Tag x={900} y={590} name="ThrustSSC" kmh="1,228" size={50} hi />
   </AbsoluteFill>
 );
 
 export const Cover04: React.FC = () => (
-  <AbsoluteFill style={{background: '#1b1418', overflow: 'hidden'}}>
-    <Scene w={1080} h={1920} tf="translate(540,1250) scale(1.9) translate(-540,-1300)" benzX={360} jetX={560} sb={72} sj={33} />
-    <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(40,28,48,.55) 0%, rgba(40,28,48,.5) 30%, rgba(40,28,48,0) 52%)'}} />
-    <div style={{position: 'absolute', left: 0, right: 0, top: 250, textAlign: 'center', fontFamily: 'Inter', color: CREAM, textShadow: shadow}}>
-      <div style={{fontWeight: 300, fontSize: 96, lineHeight: 1.1}}>Automobiles</div>
-      <div style={{fontWeight: 600, fontSize: 96, lineHeight: 1.1}}>speed comparison</div>
+  <AbsoluteFill style={{background: '#1b1418', overflow: 'hidden', ...grade}}>
+    <Scene w={1080} h={1920} tf="translate(540,1330) scale(2.4) translate(-540,-1310)" benzX={400} jetX={540} sb={55} sj={24} />
+    <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(36,24,44,.75) 0%, rgba(36,24,44,.55) 30%, rgba(36,24,44,0) 50%)'}} />
+    <div style={{position: 'absolute', left: 0, right: 0, top: 230, textAlign: 'center', color: CREAM, textShadow: shadow}}>
+      <div style={{fontFamily: 'Inter', fontWeight: 300, fontSize: 84, lineHeight: 1.1}}>Automobiles</div>
+      <div style={{fontFamily: 'Inter', fontWeight: 600, fontSize: 84, lineHeight: 1.1}}>speed comparison</div>
+      <div style={{marginTop: 60}}><Hook size={150} /></div>
+      <div style={{fontFamily: 'Inter', fontWeight: 500, fontSize: 32, letterSpacing: 6, color: MUTE, marginTop: 22}}>THE FIRST CAR VS THE FASTEST EVER</div>
     </div>
-    <Tag x={540} y={830} name="ThrustSSC" kmh="1,228" size={92} hi />
-    <Tag x={540} y={1440} name="The first car" kmh="16" size={72} />
   </AbsoluteFill>
 );
