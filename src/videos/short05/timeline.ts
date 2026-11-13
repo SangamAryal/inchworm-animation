@@ -6,8 +6,9 @@ const ease = Easing.inOut(Easing.cubic);
 const smooth = (u: number) => u * u * (3 - 2 * u);
 const cl = (u: number) => Math.min(1, Math.max(0, u));
 export const ms = (r: Craft) => r.kmh / 3.6;
-// background speed on screen (px per frame): compressed so 13 m/s and 7,800 m/s both read as motion
-export const vis = (v: number) => 2.2 * Math.pow(v, 0.55);
+// background speed on screen (px per frame). Real speeds span 580x, which no screen can show linearly, so this
+// keeps a ~115x spread (v^0.75): the Wright Flyer drifts at ~8 px/frame, the Shuttle tears past at ~1,000.
+export const vis = (v: number) => 1.2 * Math.pow(v, 0.75);
 
 // Two flight levels: each new craft passes the last one on the other level.
 export const LANES = [{y: 900, d: 0.9}, {y: 1045, d: 1.1}]; // far, near (d = depth scale)

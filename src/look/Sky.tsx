@@ -59,6 +59,25 @@ const cloud = (p: Puff, key: string, stretch: number, op: number, alt: number) =
   );
 };
 
+// Air streaks: small motes at mixed depths that stretch into lines as speed rises. They are on screen at every
+// altitude, so the jump in speed between machines reads the same way from the first plane to orbit.
+export const Motes: React.FC<{bgX: number; spf: number; seed: number; n: number; y0: number; y1: number; dMin: number; dMax: number; op: number}> = ({bgX, spf, seed, n, y0, y1, dMin, dMax, op}) => {
+  const M = rng(seed), tile = 2600;
+  const list = Array.from({length: n}, () => ({x: M() * tile, y: y0 + M() * (y1 - y0), d: dMin + M() * (dMax - dMin), a: 0.4 + M() * 0.6}));
+  return <g>{list.flatMap((m, i) => {
+    const trail = Math.min(2400, spf * m.d * 1.6), w = 1.4 + 1.8 * m.d;
+    const x = wrap(m.x - bgX * m.d, tile) + X0;
+    return [0, tile].map((k) => {
+      const xx = x + k - tile * 0.5;
+      if (xx > W + 20 || xx + trail < X0) return null;
+      return <g key={`${i}-${k}`} opacity={op * m.a * Math.min(1, 0.35 + trail / 120)}>
+        <rect x={xx} y={m.y - w / 2} width={Math.max(trail, w)} height={w} rx={w / 2} fill="url(#skMote)" />
+        <circle cx={xx} cy={m.y} r={w * 0.7} fill="#FFF4E6" />
+      </g>;
+    });
+  })}</g>;
+};
+
 // bgX: accumulated background travel (px at depth 1). spf: background speed (px per frame at depth 1).
 export const Sky: React.FC<{bgX: number; spf: number; alt: number; t: number}> = ({bgX, spf, alt, t}) => {
   useEarth();
@@ -66,7 +85,7 @@ export const Sky: React.FC<{bgX: number; spf: number; alt: number; t: number}> =
   const HZ = 1390 + 170 * smooth(0.3, 1, alt); // horizon height on screen
   const R = 1 / (1 / 90000 + smooth(0.35, 1, alt) / 2300); // radius of the Earth's limb, in px
   const cy = HZ + R;
-  const stars = smooth(0.42, 0.85, alt), space = smooth(0.75, 1, alt), clouds = 1 - smooth(0.35, 0.7, alt);
+  const stars = smooth(0.42, 0.85, alt), space = smooth(0.75, 1, alt), clouds = 1 - smooth(0.55, 0.9, alt);
   const land = 1 - smooth(0.55, 0.95, alt);
   const S = rng(77);
   const starList = Array.from({length: 220}, () => ({x: X0 + S() * (W - X0), y: -400 + S() * 1900, r: 0.6 + S() * S() * 2.4, a: 0.3 + S() * 0.7, tw: S() * 6}));
@@ -122,6 +141,7 @@ export const Sky: React.FC<{bgX: number; spf: number; alt: number; t: number}> =
         <linearGradient id="skNight" gradientUnits="userSpaceOnUse" x1="0" y1={HZ} x2="0" y2={HZ + 700}>
           <stop offset="0" stopColor="#0a1030" stopOpacity="0.15" /><stop offset="0.5" stopColor="#060a1c" stopOpacity="0.45" /><stop offset="1" stopColor="#03050e" stopOpacity="0.8" />
         </linearGradient>
+        <linearGradient id="skMote" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#FFF4E6" stopOpacity="0.9" /><stop offset="1" stopColor="#FFF4E6" stopOpacity="0" /></linearGradient>
         <clipPath id="skEarth"><path d={limb} /></clipPath>
         <filter id="skBlur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="10" /></filter>
         <filter id="skGlow" x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation="7" /></filter>
@@ -138,12 +158,12 @@ export const Sky: React.FC<{bgX: number; spf: number; alt: number; t: number}> =
       <path d={limb} fill="url(#skLand)" />
       <g clipPath="url(#skEarth)">
         {land > 0.01 && <g opacity={land}>{fields.flatMap((p, i) => [0, -2400, 2400].map((k) => {
-          const x = p.x - gOff(0.03, 2400) + k, y = HZ + 20 + Math.pow(p.y, 1.6) * 520, d = 0.3 + (y - HZ) / 300;
+          const x = p.x - gOff(0.06, 2400) + k, y = HZ + 20 + Math.pow(p.y, 1.6) * 520, d = 0.3 + (y - HZ) / 300;
           if (x < X0 - p.w * d || x > W + 20) return null;
           return <ellipse key={`${i}${k}`} cx={x} cy={y} rx={p.w * d} ry={p.w * d * 0.06 + 2} fill={p.c > 0.5 ? '#5E4A38' : '#8A6E52'} opacity={0.35} />;
         }))}</g>}
         {land < 0.99 && <g opacity={1 - land}>
-          {[0, 1, 2].map((k) => <image key={k} href={EARTH} x={k * 3200 - gOff(0.08, 3200) + X0} y={HZ - 30} width={3200} height={760} preserveAspectRatio="none" />)}
+          {[0, 1, 2].map((k) => <image key={k} href={EARTH} x={k * 3200 - gOff(0.14, 3200) + X0} y={HZ - 30} width={3200} height={760} preserveAspectRatio="none" />)}
           <rect x={X0} y={HZ - 40} width={W - X0} height={900} fill="url(#skNight)" />
         </g>}
       </g>
@@ -155,9 +175,10 @@ export const Sky: React.FC<{bgX: number; spf: number; alt: number; t: number}> =
       </g>}
       {/* clouds around the flight level, sinking away as the planes climb */}
       {clouds > 0.01 && <g opacity={clouds} transform={`translate(0,${sink})`}>
-        {layer(31, 7, 0.22, 520, 1250, 260, 2600)}
-        {layer(41, 5, 0.45, 1150, 1500, 380, 3000)}
+        {layer(31, 7, 0.35, 520, 1250, 260, 2600)}
+        {layer(41, 5, 0.65, 1150, 1500, 380, 3000)}
       </g>}
+      <Motes bgX={bgX} spf={spf} seed={88} n={42} y0={470} y1={1700} dMin={0.35} dMax={1} op={0.55} />
     </g>
   );
 };
@@ -165,13 +186,14 @@ export const Sky: React.FC<{bgX: number; spf: number; alt: number; t: number}> =
 // A few large, fast clouds that pass in front of the planes (depth > 1), for parallax.
 export const SkyFront: React.FC<{bgX: number; spf: number; alt: number}> = ({bgX, spf, alt}) => {
   const op = 1 - smooth(0.12, 0.45, alt);
-  if (op < 0.01) return null;
+  const motes = <Motes bgX={bgX} spf={spf} seed={93} n={10} y0={480} y1={1650} dMin={1.3} dMax={1.8} op={0.5} />;
+  if (op < 0.01) return motes;
   const G = rng(51), tile = 4200, par = 1.3;
   const puffs = Array.from({length: 3}, () => ({x: G() * tile, y: 1420 + G() * 300, w: 620 + G() * 300, h: 0, seed: Math.floor(G() * 1e6)})).map((p) => ({...p, h: p.w * 0.3}));
   const off = wrap(bgX * par, tile), stretch = 1 + Math.min(5, (spf * par) / 600);
-  return <g opacity={op * 0.9}>{puffs.flatMap((p, i) => [0, -tile, tile].map((k) => {
+  return <g><g opacity={op * 0.9}>{puffs.flatMap((p, i) => [0, -tile, tile].map((k) => {
     const x = p.x - off + k;
     if (x < X0 - p.w * stretch || x > W + p.w * stretch) return null;
     return cloud({...p, x}, `f${i}${k}`, stretch, 1 / Math.sqrt(stretch), alt);
-  }))}</g>;
+  }))}</g>{motes}</g>;
 };
