@@ -170,8 +170,8 @@ export const DaySky: React.FC<{bgX: number; spf: number; alt: number; t: number}
       <rect x={X0} y={-420} width={W - X0} height={HZ + 1000} fill="url(#dsSky)" />
       {stars > 0.01 && <g>{starList.map((s, i) => s.y < HZ - 30 && <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#FFFFFF" opacity={stars * s.a} />)}</g>}
       {/* the sun, high on the left, with a soft glare */}
-      <circle cx={120} cy={230} r={520} fill="url(#dsSun)" />
-      <circle cx={120} cy={230} r={44} fill="#FFFFFF" />
+      <circle cx={-20} cy={520} r={520} fill="url(#dsSun)" />
+      <circle cx={-20} cy={520} r={44} fill="#FFFFFF" />
       {/* far clouds near the horizon */}
       {clouds > 0.01 && <g opacity={0.9 * clouds} transform={`translate(0,${sink * 0.15})`}>{layer(21, 12, 0.05, HZ - 110, HZ - 20, 170, 2600, 0.7)}</g>}
       {land > 0.01 && <g opacity={land}>
