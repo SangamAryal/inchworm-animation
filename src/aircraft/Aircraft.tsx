@@ -1,27 +1,35 @@
 import React from 'react';
 import {APart, ASpec} from './types';
 import {shape} from '../vehicles/path';
+import {fbm1} from '../engine/noise';
 
 // x: screen x of the aircraft's middle, g: screen y of its centre line, s: px per metre,
 // t: seconds (for props, flames and drift), v: airspeed in m/s (blurs props and stretches trails).
-type Props = {spec: ASpec; x: number; g: number; s: number; t: number; v: number; id: string; trail?: number; pitch?: number};
+type Props = {spec: ASpec; x: number; g: number; s: number; t: number; v: number; id: string; trail?: number; pitch?: number; day?: boolean; seed?: number};
 
 const cl = (u: number) => Math.max(0, Math.min(1, u));
 
-export const Aircraft: React.FC<Props> = ({spec: S, x, g, s, t, v, id, trail = 1, pitch = 0}) => {
-  const drift = S.bob * (Math.sin(t * 1.7 + x * 0.002) + 0.4 * Math.sin(t * 3.9 + 1.1));
-  const tilt = pitch + 0.6 * Math.sin(t * 1.3 + 0.4); // degrees, nose up positive
+export const Aircraft: React.FC<Props> = ({spec: S, x, g, s, t, v, id, trail = 1, pitch = 0, day = false, seed = 0}) => {
+  // Drift in the air: non-repeating noise, slower and smaller for heavy aircraft, quicker for light ones.
+  // The nose follows the vertical motion a little (it pitches up while rising), so the drift has a cause.
+  const rate = 0.55 * Math.sqrt(12 / S.L);
+  const z = (tt: number) => S.bob * 1.6 * fbm1(tt * rate, seed + 3);
+  const drift = z(t), climb = (z(t + 0.05) - z(t - 0.05)) / 0.1; // m/s
+  const tilt = pitch + Math.max(-2.5, Math.min(2.5, (climb / Math.max(8, v * 0.02)) * 57.3 * 0.6)) + 0.4 * fbm1(t * 0.7, seed + 9);
   const T = `translate(${x},${g}) rotate(${-tilt}) translate(${-(S.L / 2) * s},${-drift * s}) scale(${s},${-s})`;
   const fill = (p: APart) => {
     const f = p.fill ?? 'none';
     return ['paint', 'paint2', 'glass', 'metal', 'dark'].includes(f) ? `url(#${id}-${f})` : f;
   };
-  const partEl = (p: APart, k: string) => (
+  const partEl = (p: APart, k: string) => p.text ? (
+    <text key={k} x={p.text.x} y={-p.text.y} transform="scale(1,-1)" fontFamily="Inter" fontWeight={p.text.weight ?? 600} fontSize={p.text.size}
+      letterSpacing={p.text.spacing ?? 0} fill={p.fill} opacity={p.op} clipPath={p.clip ? undefined : undefined}>{p.text.s}</text>
+  ) : (
     <path key={k} d={p.d} fill={fill(p)} stroke={p.stroke} strokeWidth={p.sw} strokeLinecap="round" strokeLinejoin="round"
       opacity={p.op} clipPath={p.clip ? `url(#${id}-clip)` : undefined} />
   );
   const layer = (l: 'back' | 'mid' | 'front') => S.parts.filter((p) => (p.layer ?? 'mid') === l).map((p, i) => partEl(p, l + i));
-  const solids = S.parts.filter((p) => p.solid);
+  const solids = S.parts.filter((p) => p.solid && !p.text);
   const silhouette = (col: string) => (
     <g>
       <path d={S.body} fill={col} />
@@ -60,6 +68,14 @@ export const Aircraft: React.FC<Props> = ({spec: S, x, g, s, t, v, id, trail = 1
         </linearGradient>
         <radialGradient id={`${id}-glow`}><stop offset="0" stopColor="#fff6e4" stopOpacity="0.9" /><stop offset="0.3" stopColor="#ffcf98" stopOpacity="0.35" /><stop offset="1" stopColor="#ff9a58" stopOpacity="0" /></radialGradient>
         <radialGradient id={`${id}-disc`}><stop offset="0" stopColor="#2a2228" stopOpacity="0.55" /><stop offset="0.85" stopColor="#2a2228" stopOpacity="0.35" /><stop offset="1" stopColor="#2a2228" stopOpacity="0" /></radialGradient>
+        {S.fuse && <linearGradient id={`${id}-sheen`} gradientUnits="userSpaceOnUse" x1={0} y1={S.fuse[0] + S.fuse[1]} x2={0} y2={S.fuse[0] - S.fuse[1]}>
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0" />
+          <stop offset="0.16" stopColor="#ffffff" stopOpacity={day ? 0.55 : 0.3} />
+          <stop offset="0.3" stopColor="#ffffff" stopOpacity={day ? 0.12 : 0.05} />
+          <stop offset="0.55" stopColor="#000000" stopOpacity="0" />
+          <stop offset="0.82" stopColor="#0b1830" stopOpacity={day ? 0.16 : 0.2} />
+          <stop offset="1" stopColor={day ? '#9fb8d8' : '#0b0810'} stopOpacity={day ? 0.25 : 0.2} />
+        </linearGradient>}
         <clipPath id={`${id}-clip`}>{clipShapes.map((d, i) => <path key={i} d={d} />)}</clipPath>
         <filter id={`${id}-soft`} x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation={0.04} /></filter>
         <filter id={`${id}-trailb`} x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation={Math.max(0.08, 3 / s)} /></filter>
@@ -80,9 +96,15 @@ export const Aircraft: React.FC<Props> = ({spec: S, x, g, s, t, v, id, trail = 1
             <circle cx={fl.x - fl.r} cy={fl.y} r={fl.r * 4} fill={`url(#${id}-glow)`} opacity={0.55} />
           </g>;
         })}
-        <g transform={`translate(${-rim},${rim * 0.8})`} opacity={S.rim ? 1 : 0.85}>{silhouette('#ffd8b0')}</g>
+        <g transform={`translate(${-rim},${rim * 0.8})`} opacity={day ? 0.55 : S.rim ? 1 : 0.85}>{silhouette(day ? '#ffffff' : '#ffd8b0')}</g>
         {layer('back')}
         <path d={S.body} fill={`url(#${id}-paint)`} />
+        {S.seams && <g clipPath={`url(#${id}-clip)`} opacity={day ? 0.22 : 0.15}>
+          {Array.from({length: Math.floor((S.seams[1] - S.seams[0]) / S.seams[2]) + 1}, (_, i) => S.seams![0] + i * S.seams![2]).map((sx, i) => (
+            <line key={i} x1={sx} x2={sx} y1={S.bot} y2={S.top} stroke="#2a2a33" strokeWidth={0.9 / s} />
+          ))}
+        </g>}
+        {S.fuse && <rect x={-1} y={S.fuse[0] - S.fuse[1] * 1.05} width={S.L + 2} height={S.fuse[1] * 2.1} fill={`url(#${id}-sheen)`} clipPath={`url(#${id}-clip)`} />}
         {layer('mid')}
         {layer('front')}
         {S.props?.map((p, i) => {

@@ -1,4 +1,5 @@
 import {Easing} from 'remotion';
+import {fbm1} from '../../engine/noise';
 import {AIRCRAFT} from '../../aircraft/specs';
 import {CRAFT, Craft, T, pxPerM} from './data';
 
@@ -61,7 +62,8 @@ export const makeTimeline = (ids: string[], opts: {intro?: number}) => {
 
   const camera = (f: number) => {
     const p = phase(f), i = Math.floor(p), u = p - i;
-    const sway = {x: 14 * Math.sin(f / 37), y: 12 * Math.sin(f / 29 + 1)};
+    // a camera operator's drift: slow non-repeating noise plus a faint, faster tremor
+    const sway = {x: 16 * fbm1(f / 70, 1) + 1.5 * fbm1(f / 6, 2), y: 12 * fbm1(f / 85, 3) + 1.2 * fbm1(f / 7, 4)};
     const yOf = (k: number) => lane(k).y;
     if (f >= runEnd || u === 0) {
       const k = Math.min(i, list.length - 1);

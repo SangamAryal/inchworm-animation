@@ -58,7 +58,7 @@ const wright: ASpec = {
 
 // Ryan NYP "Spirit of St. Louis", 1927: 8.41 m long, high wing, silver fabric, aluminium nose, fixed gear.
 const spirit: ASpec = {
-  L: 8.41, top: 1.3, bot: -2.1, bob: 0.06,
+  L: 8.41, top: 1.3, bot: -2.1, bob: 0.06, fuse: [0, 0.62], seams: [1.2, 5.2, 0.8],
   paint: ['#efeae6', '#b6afb2', '#6a6468'],
   paint2: ['#fbf6f0', '#c9c2c0', '#77707a'],
   body: shape([[0.2, 0.12, 0], [2.0, 0.3], [4.4, 0.58], [6.4, 0.66], [7.4, 0.62, 0], [7.4, -0.58, 0], [6.4, -0.62], [4.4, -0.55], [2.0, -0.24], [0.2, -0.06, 0]]),
@@ -85,13 +85,15 @@ const spirit: ASpec = {
     {d: rect(4.0, 0.12, 4.55, 0.45, 0.05), fill: 'glass'},
     {d: line([[5.2, -0.5, 0], [5.2, 0.6, 0]]), stroke: '#8a8286', sw: 0.015},
     {d: line([[6.9, -0.6], [6.3, -0.75]]), stroke: '#3a3438', sw: 0.06},
+    {d: '', text: {s: 'SPIRIT OF ST. LOUIS', x: 6.38, y: 0.18, size: 0.13, weight: 700}, fill: '#1c1a20', layer: 'front'},
+    {d: '', text: {s: 'N-X-211', x: 0.12, y: 0.55, size: 0.17, weight: 700}, fill: '#1c1a20', layer: 'back'},
   ],
   props: [{x: 8.25, y: 0.02, r: 1.33, blades: 2, color: '#b6b0b2'}],
 };
 
 // Supermarine Spitfire Mk IX: 9.47 m long, Merlin engine, bubble canopy, gear up. RAF day-fighter grey and green.
 const spitfire: ASpec = {
-  L: 9.47, top: 1.6, bot: -0.8, bob: 0.07,
+  L: 9.47, top: 1.6, bot: -0.8, bob: 0.07, fuse: [0, 0.5], seams: [2.0, 8.6, 0.85],
   paint: ['#77806a', '#5a6350', '#a3a8ac'],
   body: shape([[0.3, 0.26, 0], [2.0, 0.36], [3.9, 0.52], [5.9, 0.5, 0], [6.6, 0.48], [8.6, 0.44], [9.1, 0.32, 0], [9.1, -0.3, 0], [8.6, -0.42], [7.0, -0.5], [5.4, -0.62], [4.4, -0.56], [2.0, -0.32], [0.3, -0.1, 0]]),
   parts: [
@@ -110,6 +112,7 @@ const spitfire: ASpec = {
     {d: rect(0.6, 0.55, 0.78, 0.95), fill: '#a3302c', layer: 'front'},
     {d: rect(0.78, 0.55, 0.84, 0.95), fill: '#ece6da', layer: 'front'},
     {d: rect(0.84, 0.55, 1.02, 0.95), fill: '#2b3a63', layer: 'front'},
+    {d: line([[4.1, 0.55, 0], [3.75, 1.02, 0]]), stroke: '#2a2a2a', sw: 0.03, solid: true, layer: 'back'},
     // canopy and windscreen
     {d: shape([[4.0, 0.52, 0], [4.4, 0.78], [5.1, 0.9], [5.6, 0.84], [6.0, 0.5, 0]]), fill: 'glass', solid: true},
     {d: line([[5.55, 0.86, 0], [5.6, 0.5, 0]]), stroke: '#2a2a2a', sw: 0.025},
@@ -129,7 +132,7 @@ const spitfire: ASpec = {
 
 // Boeing 747-400: 70.66 m long, hump with the upper deck, four engines under swept wings, winglets. Plain livery.
 const b747: ASpec = {
-  L: 70.66, top: 12, bot: -6, bob: 0.25,
+  L: 70.66, top: 12, bot: -6, bob: 0.25, fuse: [0, 3.25], seams: [6, 66, 5.5],
   paint: ['#f8f4f1', '#dcd5d4', '#8e8890'],
   paint2: ['#4a5878', '#2d3a5a', '#1a2238'],
   body: shape([[0.0, 1.0, 0], [4.0, 2.6], [12.0, 3.2], [44.0, 3.25], [50.0, 3.6], [57.0, 4.65], [63.5, 4.55], [67.6, 3.0], [69.8, 1.2], [70.66, -0.4], [70.2, -1.4], [68.0, -2.5], [62.0, -3.2], [20.0, -3.25], [13.0, -2.6], [5.0, -0.7], [0.0, 0.6, 0]]),
@@ -164,7 +167,7 @@ const b747: ASpec = {
 
 // Concorde: 61.66 m long, slender fuselage, ogival delta wing, four engines in two boxes, tall swept fin, nose up for cruise.
 const concorde: ASpec = {
-  L: 61.66, top: 9.5, bot: -3.6, bob: 0.2,
+  L: 61.66, top: 9.5, bot: -3.6, bob: 0.2, fuse: [0, 1.45], seams: [8, 54, 4.6],
   paint: ['#fcf9f6', '#ddd7d6', '#8c8890'],
   body: shape([[0.0, 0.7, 0], [3.0, 1.2], [10.0, 1.45], [52.0, 1.45], [55.5, 1.25], [58.0, 0.7], [61.66, -0.05, 0], [58.5, -0.75], [54.0, -1.35], [20.0, -1.45], [8.0, -1.2], [0.0, 0.3, 0]]),
   parts: [
@@ -186,7 +189,7 @@ const concorde: ASpec = {
 
 // Lockheed SR-71 Blackbird: 32.74 m long, flat chined fuselage, engine nacelles with inlet spikes, canted fins. Black.
 const sr71: ASpec = {
-  L: 32.74, top: 4.6, bot: -1.4, bob: 0.12, rim: 3.6,
+  L: 32.74, top: 4.6, bot: -1.4, bob: 0.12, rim: 3.6, fuse: [0, 1.0],
   paint: ['#5a5466', '#26232e', '#0c0b10'],
   body: shape([[0.0, 0.35, 0], [6.0, 0.85], [16.0, 0.95], [21.0, 0.85], [23.4, 1.2], [25.6, 1.2], [29.0, 0.5], [32.74, 0.0, 0], [31.0, -0.15], [26.0, -0.45], [16.0, -0.95], [6.0, -0.8], [0.0, -0.25, 0]]),
   parts: [
@@ -202,6 +205,8 @@ const sr71: ASpec = {
     {d: line([[25.0, 1.4, 0], [25.0, 1.12, 0]]), stroke: '#111', sw: 0.04, layer: 'front'},
     // small red stencil line
     {d: line([[27.0, 0.25, 0], [28.6, 0.2, 0]]), stroke: '#a3302c', sw: 0.06, op: 0.8, layer: 'front'},
+    {d: '', text: {s: 'U.S. AIR FORCE', x: 25.2, y: -0.42, size: 0.3, weight: 700, spacing: 0.02}, fill: '#c0453a', layer: 'front'},
+    {d: '', text: {s: '17958', x: 4.0, y: 2.3, size: 0.75, weight: 700}, fill: '#d9d4de', op: 0.9, layer: 'front'},
   ],
   flame: [{x: 0.5, y: -0.05, r: 0.85, len: 9, kind: 'jet'}],
 };
@@ -209,7 +214,7 @@ const sr71: ASpec = {
 // North American X-15 (X-15A-2 as flown at Mach 6.7, white ablative coating): 15.45 m long, rocket powered,
 // side fairings, wedge-shaped upper and lower fins, short wings.
 const x15: ASpec = {
-  L: 15.45, top: 2.7, bot: -2.1, bob: 0.08,
+  L: 15.45, top: 2.7, bot: -2.1, bob: 0.08, fuse: [0, 0.66], seams: [1.5, 11, 1.6],
   paint: ['#fbf7f2', '#ded6cf', '#958d8a'],
   body: shape([[0.0, 0.62, 0], [8.0, 0.66], [11.4, 0.66], [12.6, 0.55], [14.4, 0.25], [15.45, 0.0, 0], [14.4, -0.25], [12.6, -0.55], [11.0, -0.66], [0.0, -0.62, 0]]),
   parts: [
@@ -225,6 +230,8 @@ const x15: ASpec = {
     {d: rect(-0.15, -0.45, 0.15, 0.45, 0.05), fill: '#2a2428', solid: true},
     {d: shape([[13.4, 0.42, 0], [15.45, 0.0, 0], [13.4, -0.42, 0]]), fill: '#8a6a5a', op: 0.35, clip: true},
     ...[3.0, 6.0, 9.0].map((x) => ({d: line([[x, -0.62, 0], [x, 0.64, 0]]), stroke: '#b9b0a8', sw: 0.025})),
+    {d: '', text: {s: 'U.S. AIR FORCE', x: 6.2, y: 0.25, size: 0.26, weight: 700, spacing: 0.01}, fill: '#22202a', layer: 'front'},
+    {d: '', text: {s: '56-6671', x: 0.5, y: 1.55, size: 0.3, weight: 700}, fill: '#22202a', layer: 'back'},
   ],
   flame: [{x: -0.15, y: 0.0, r: 0.5, len: 11, kind: 'rocket'}],
 };
@@ -232,7 +239,7 @@ const x15: ASpec = {
 // Space Shuttle orbiter: 37.24 m long, white upper surface, black heat-shield tiles underneath, delta wing,
 // OMS pods either side of the fin, three main engines. Coasting in orbit, so no flame.
 const shuttle: ASpec = {
-  L: 37.24, top: 11.6, bot: -2.4, bob: 0.1,
+  L: 37.24, top: 11.6, bot: -2.4, bob: 0.1, fuse: [0.6, 2.6],
   paint: ['#f8f5f0', '#d8d3ce', '#8c8789'],
   body: shape([[0.6, -1.2, 0], [0.6, 3.0, 0], [4.0, 3.1], [30.0, 3.1], [32.5, 2.75], [34.5, 2.0], [36.4, 0.9], [37.24, -0.5], [36.6, -1.4], [34.0, -1.9], [10.0, -2.0], [2.0, -1.9, 0]]),
   parts: [
@@ -249,6 +256,7 @@ const shuttle: ASpec = {
     {d: shape([[33.5, 3.2, 0], [36.4, 0.9], [37.4, -0.6], [36.8, -1.6], [34.6, -2.2, 0]]), fill: TILE, clip: true},
     {d: line([[8.5, 3.1, 0], [30.5, 3.1, 0]]), stroke: '#a8a2a2', sw: 0.06},
     {d: line([[8.5, 2.4, 0], [30.0, 2.4, 0]]), stroke: '#c2bcba', sw: 0.04},
+    {d: '', text: {s: 'UNITED STATES', x: 13.5, y: 0.6, size: 1.05, weight: 700, spacing: 0.15}, fill: '#1c1c24', op: 0.85},
     {d: poly([[31.6, 2.85], [33.2, 2.5], [33.5, 2.05], [31.7, 2.25]]), fill: '#121014'},
     {d: poly([[33.5, 2.45], [34.4, 2.0], [34.5, 1.65], [33.6, 2.0]]), fill: '#121014'},
     // delta wing edge-on, black leading edge

@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, interpolate, Sequence, staticFile, useCurrentFrame} from 'remotion';
 import {Sky, SkyFront} from '../../look/Sky';
+import {DaySky, DaySkyFront} from '../../look/DaySky';
 import {Aircraft} from '../../aircraft/Aircraft';
 import {AIRCRAFT} from '../../aircraft/specs';
 import {COLD, T, pxPerM} from './data';
@@ -15,9 +16,10 @@ const LABEL_Y = 1430;
 // a round scale-bar length (m) that is 120-300 px long at this scale
 const barMetres = (pxm: number) => [1, 2, 5, 10, 20, 50].find((m) => m * pxm >= 120) ?? 50;
 
-export type Short05Props = {ids: string[]; intro?: number; audio?: string};
+export type Short05Props = {ids: string[]; intro?: number; audio?: string; day?: boolean};
 
-const Main: React.FC<Short05Props> = ({ids, intro}) => {
+const Main: React.FC<Short05Props> = ({ids, intro, day}) => {
+  const Bg = day ? DaySky : Sky, Front = day ? DaySkyFront : SkyFront;
   const f = useCurrentFrame();
   const TL = makeTimeline(ids, {intro});
   const fr = Math.min(f, TL.duration);
@@ -33,6 +35,20 @@ const Main: React.FC<Short05Props> = ({ids, intro}) => {
   const cam = TL.camera(Math.min(f, TL.duration - 1));
   const camT = `translate(540,1000) scale(${cam.z}) translate(${-cam.fx},${-cam.fy})`;
 
+  // Overtakes: the newcomer lifts its nose slightly as it surges in, then settles (follow-through); the craft
+  // being passed rocks in its wake for a moment.
+  const passPitch = (i: number) => {
+    let a = 0;
+    if (i > 0 && f >= TL.holdEnd(i - 1) && f < TL.holdStart(i) + 30) {
+      const w = (f - TL.holdEnd(i - 1)) / T.trans;
+      a += 2.2 * Math.sin(Math.PI * Math.min(1, w)) * (w < 1 ? 1 : 0) - (w > 1 ? 0.8 * Math.sin((w - 1) * 10) * Math.exp(-(w - 1) * 6) : 0);
+    }
+    if (i < TL.list.length - 1 && f >= TL.holdEnd(i)) {
+      const w = (f - TL.holdEnd(i)) / T.trans - 0.35;
+      if (w > 0) a += 1.6 * Math.sin(w * 14) * Math.exp(-w * 4);
+    }
+    return a;
+  };
   const labelOp = (i: number) => {
     const inT = p - i;
     return interpolate(inT, [-0.35, -0.05], [0, 1], clamp) * interpolate(inT, [0.05, 0.3], [1, 0], clamp) * (i === 0 ? interpolate(f, [i0 - 20, i0], [0, 1], clamp) : 1);
@@ -48,14 +64,16 @@ const Main: React.FC<Short05Props> = ({ids, intro}) => {
     <AbsoluteFill style={{background: '#1b1418', opacity: endFade}}>
       <svg width={1080} height={1920} style={{position: 'absolute'}}>
         <g transform={camT}>
-          <Sky bgX={TL.bgX[fr]} spf={vis(v)} alt={TL.alt(f)} t={t} />
+          <Bg bgX={TL.bgX[fr]} spf={vis(v)} alt={TL.alt(f)} t={t} />
           {visible.map(({r, i, x}) => (
-            <Aircraft key={r.id} spec={AIRCRAFT[r.id]} t={t + i * 0.37} x={x} g={lane(i).y} s={s * lane(i).d} v={ms(r)} id={`a${i}`} />
+            <Aircraft key={r.id} spec={AIRCRAFT[r.id]} t={t} x={x} g={lane(i).y} s={s * lane(i).d} v={ms(r)} id={`a${i}`} day={day} seed={i * 7} pitch={passPitch(i)} />
           ))}
-          <SkyFront bgX={TL.bgX[fr]} spf={vis(v)} alt={TL.alt(f)} />
+          <Front bgX={TL.bgX[fr]} spf={vis(v)} alt={TL.alt(f)} />
         </g>
         <rect x={0} y={1280} width={1080} height={640} fill="url(#scrim05)" />
-        <defs><linearGradient id="scrim05" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1b1220" stopOpacity="0" /><stop offset="0.3" stopColor="#1b1220" stopOpacity="0.5" /><stop offset="1" stopColor="#1b1220" stopOpacity="0.75" /></linearGradient></defs>
+        {day && <rect x={0} y={0} width={1080} height={520} fill="url(#scrimTop05)" />}
+        <defs><linearGradient id="scrimTop05" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0c2238" stopOpacity="0.35" /><stop offset="1" stopColor="#0c2238" stopOpacity="0" /></linearGradient></defs>
+        <defs><linearGradient id="scrim05" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={day ? '#0c2238' : '#1b1220'} stopOpacity="0" /><stop offset="0.3" stopColor={day ? '#0c2238' : '#1b1220'} stopOpacity={day ? 0.45 : 0.5} /><stop offset="1" stopColor={day ? '#0c2238' : '#1b1220'} stopOpacity={day ? 0.7 : 0.75} /></linearGradient></defs>
         {visible.map(({r, i}) => labelOp(i) > 0.01 && <SpeedLabel key={'l' + i} r={r} opacity={labelOp(i)} y={LABEL_Y} />)}
         {multOp > 0.01 && <Multiplier value={TL.list[multI].kmh / TL.list[multI - 1].kmh} than={TL.list[multI - 1].ref} opacity={multOp} />}
         <ScaleBar len={s * barM * lane(Math.round(p)).d * cam.z} text={`${barM} m`} opacity={barOp} />
@@ -65,7 +83,8 @@ const Main: React.FC<Short05Props> = ({ids, intro}) => {
 };
 
 // Cold open: the fastest machine first, so the payoff is promised in the first second.
-const Cold: React.FC = () => {
+const Cold: React.FC<{day?: boolean}> = ({day}) => {
+  const Bg = day ? DaySky : Sky;
   const f = useCurrentFrame();
   const t = f / T.fps, v = 7778;
   const x = 545 - 30 * Math.sin((f / COLD) * Math.PI);
@@ -75,8 +94,8 @@ const Cold: React.FC = () => {
     <AbsoluteFill style={{background: '#1b1418'}}>
       <svg width={1080} height={1920} style={{position: 'absolute'}}>
         <g transform="translate(540,1000) scale(1.05) translate(-540,-1040)">
-          <Sky bgX={vis(v) * f + 3000} spf={vis(v)} alt={1} t={t} />
-          <Aircraft spec={AIRCRAFT.shuttle} t={t} x={x} g={1080} s={pxPerM(37.24) * 1.02} v={v} id="cold" />
+          <Bg bgX={vis(v) * f + 3000} spf={vis(v)} alt={1} t={t} />
+          <Aircraft spec={AIRCRAFT.shuttle} t={t} x={x} g={1080} s={pxPerM(37.24) * 1.02} v={v} id="cold" day={day} />
         </g>
         <Title lines={TITLE05} opacity={1} />
         <g style={shadow} transform={`translate(540,560) scale(${pop}) translate(-540,-560)`}>
@@ -88,10 +107,10 @@ const Cold: React.FC = () => {
   );
 };
 
-export const Short05: React.FC<Short05Props> = ({ids, intro, audio}) => (
-  <AbsoluteFill style={{background: '#1b1418', filter: 'contrast(1.08) saturate(1.15)'}}>
-    <Sequence durationInFrames={COLD}><Cold /></Sequence>
-    <Sequence from={COLD}><Main ids={ids} intro={intro} /></Sequence>
+export const Short05: React.FC<Short05Props> = ({ids, intro, audio, day}) => (
+  <AbsoluteFill style={{background: '#1b1418', filter: day ? 'contrast(1.04)' : 'contrast(1.08) saturate(1.15)'}}>
+    <Sequence durationInFrames={COLD}><Cold day={day} /></Sequence>
+    <Sequence from={COLD}><Main ids={ids} intro={intro} day={day} /></Sequence>
     {audio && <Audio src={staticFile(audio)} />}
   </AbsoluteFill>
 );

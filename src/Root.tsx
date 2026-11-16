@@ -50,10 +50,16 @@ export const Root: React.FC = () => (
     <Composition id="vtest" component={VehicleTest} width={1080} height={1920} fps={30} durationInFrames={60} defaultProps={{speed: 2}} />
     <Still id="thumb05" component={Thumb05} width={1280} height={720} />
     <Still id="cover05" component={Cover05} width={1080} height={1920} />
+    <Still id="thumb05day" component={Thumb05} width={1280} height={720} defaultProps={{day: true}} />
+    <Still id="cover05day" component={Cover05} width={1080} height={1920} defaultProps={{day: true}} />
     <Composition id="short05" component={Short05} width={1080} height={1920} fps={30}
       durationInFrames={short05Duration({ids: ALL05})} defaultProps={{ids: ALL05, audio: 'audio/short05.wav'}} />
     <Composition id="short05silent" component={Short05} width={1080} height={1920} fps={30}
       durationInFrames={short05Duration({ids: ALL05})} defaultProps={{ids: ALL05}} />
+    <Composition id="short05day" component={Short05} width={1080} height={1920} fps={30}
+      durationInFrames={short05Duration({ids: ALL05})} defaultProps={{ids: ALL05, audio: 'audio/short05.wav', day: true}} />
+    <Composition id="short05daysilent" component={Short05} width={1080} height={1920} fps={30}
+      durationInFrames={short05Duration({ids: ALL05})} defaultProps={{ids: ALL05, day: true}} />
     <Composition id="atest" component={AircraftTest} width={1080} height={1920} fps={30} durationInFrames={60} />
     <Composition id="rigtest" component={RigTest} width={1080} height={1920} fps={30} durationInFrames={300} defaultProps={{animal: 'horse', scale: 140}} />
   </>
