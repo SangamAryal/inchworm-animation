@@ -13,6 +13,7 @@ import {VehicleTest} from './videos/short04/VehicleTest';
 import {Short04, short04Duration, ALL04} from './videos/short04/Short04';
 import {AircraftTest} from './videos/short05/AircraftTest';
 import {Short05, short05Duration, ALL05} from './videos/short05/Short05';
+import {Short06, short06Duration} from './videos/short06/Short06';
 import {RigTest} from './videos/short02/RigTest';
 import {makeLayout} from './engine/layout';
 import {SHORT01_ITEMS, SHORT01_TIMING} from './videos/short01/items';
@@ -60,6 +61,10 @@ export const Root: React.FC = () => (
       durationInFrames={short05Duration({ids: ALL05})} defaultProps={{ids: ALL05, audio: 'audio/short05.wav', day: true}} />
     <Composition id="short05daysilent" component={Short05} width={1080} height={1920} fps={30}
       durationInFrames={short05Duration({ids: ALL05})} defaultProps={{ids: ALL05, day: true}} />
+    <Composition id="short06" component={Short06} width={1080} height={1920} fps={30}
+      durationInFrames={short06Duration()} defaultProps={{audio: 'audio/short06.wav'}} />
+    <Composition id="short06silent" component={Short06} width={1080} height={1920} fps={30}
+      durationInFrames={short06Duration()} defaultProps={{}} />
     <Composition id="atest" component={AircraftTest} width={1080} height={1920} fps={30} durationInFrames={60} />
     <Composition id="rigtest" component={RigTest} width={1080} height={1920} fps={30} durationInFrames={300} defaultProps={{animal: 'horse', scale: 140}} />
   </>

@@ -68,3 +68,15 @@ Profiles are drawn in code from published length, height, wheelbase and tyre siz
 | Space Shuttle orbiter | 28,000 km/h (17,500 mph), orbital speed | NASA Kennedy Space Center FAQ |
 
 The 747 and Concorde figures are cruise speeds, the others are top or record speeds. Profiles are drawn in code from published lengths (src/aircraft/specs.ts), with no airline or squadron markings; each machine is drawn at its own scale so it fills the frame, and the scale bar shows the change. Earth seen from orbit uses public/textures/earth-strip.jpg, a crop of the NASA Blue Marble and cloud maps above. Background motion speed is compressed (v^0.55) so both 48 and 28,000 km/h read as motion.
+
+## Short 06: longest animals (lengths)
+- Human 1.7 m: average adult height.
+- Saltwater crocodile 6.17 m: Lolong, Philippines, 2011 (Guinness World Records).
+- Reticulated python 7.67 m: Medusa, Kansas City, 2011 (Guinness World Records, longest snake in captivity).
+- T. rex 12.3 m: "Sue", Field Museum, Chicago.
+- Spinosaurus ~14 m: Ibrahim et al., Nature 2020.
+- Megalodon ~16 m: Cooper et al., Scientific Reports 2022 (estimates vary).
+- Whale shark 18.8 m: largest reliably measured (Guinness, largest fish).
+- Blue whale 29.9 m: longest measured (whaling records).
+- Argentinosaurus ~35 m: estimates 30-35 m from partial remains.
+- Lion's mane jellyfish 36.6 m: Massachusetts Bay specimen, 1870, bell to tentacle tip.
