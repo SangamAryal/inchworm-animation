@@ -5,117 +5,73 @@ import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/ibm-plex-mono/500.css';
 import {fbm1, rng} from '../../engine/noise';
-import {GiantDefs, Human, Argo, BlueWhale, Croc, Jelly, Megalodon, Python, Spino, TRex, WhaleShark} from '../../giants/Animals';
+import {GiantDefs, Human, Argo, Croc, Diplo, Komodo, Python, Spino, TRex} from '../../giants/Animals';
+import {cumulus} from '../../look/DaySky';
 import {fmtFt} from '../short03/Short03';
 import {COLD, GIANTS, Giant, LABEL_Y, T, WY} from './data';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 export const CREAM = '#F6ECDF', MUTE = '#D9C4B4', ACC = '#F6B985';
-const shadow = {filter: 'drop-shadow(0 2px 8px rgba(14,10,18,0.6))'};
+const shadow = {filter: 'drop-shadow(0 2px 10px rgba(8,18,34,0.75))'};
 const ease = Easing.inOut(Easing.cubic);
 
-const ridge = (seed: number, y: number, amp: number, x0: number, x1: number) => {
-  const R = rng(seed);
-  let d = `M${x0},${y + 40} L${x0},${y}`;
-  let a = 0;
-  for (let x = x0; x <= x1; x += 18) { a += (R() - 0.5) * amp * 0.6; a *= 0.8; d += ` L${x},${(y - Math.max(0, a + Math.sin((x - x0) / 90 + seed) * amp)).toFixed(1)}`; }
-  return d + ` L${x1},${y + 40}Z`;
-};
-
-// Dusk over the sea, cut at the waterline: the top half is a low warm sun over open water, the bottom half
-// is an under-water cut-away lit from above, down to a sandy floor.
-export const SEABED = 680; // px below the waterline
-const Shore: React.FC<{wy: number; t: number; bed?: number}> = ({wy, t, bed = SEABED}) => {
-  const hz = wy - 140, sb = wy + bed;
-  const R = rng(8);
-  const stars = Array.from({length: 40}, () => ({x: R() * 1080, y: R() * (hz - 260), r: 0.7 + R() * 1.4, o: 0.2 + R() * 0.45}));
-  const glitter = Array.from({length: 70}, (_, i) => {
-    const yy = hz + 6 + Math.pow(R(), 1.6) * (wy - hz - 14), spread = 30 + (yy - hz) * 1.6;
-    const x = 210 + (R() - 0.5) * spread * 2, w = 6 + R() * 26 * ((yy - hz) / (wy - hz) + 0.3);
-    const o = 0.25 + 0.55 * Math.max(0, Math.sin(t * (2 + R() * 3) + i));
-    return <line key={i} x1={x - w / 2} x2={x + w / 2} y1={yy} y2={yy} stroke="#FFE1B8" strokeWidth={1.6} strokeOpacity={o * 0.8} />;
-  });
-  const rays = Array.from({length: 7}, (_, i) => {
-    const x = 60 + i * 160 + 40 * fbm1(t * 0.15, i), w = 40 + R() * 70, o = 0.05 + 0.05 * (0.5 + 0.5 * fbm1(t * 0.4, i + 20));
-    return <path key={i} d={`M${x},${wy} L${x + w},${wy} L${x + w + 260},${sb} L${x + 200},${sb}Z`} fill="url(#s6Ray)" opacity={o * 2.2} />;
-  });
-  const snow = Array.from({length: 90}, () => {
-    const x0 = R() * 1300, y = wy + 20 + R() * (bed - 30), sp = 6 + R() * 14, r = 0.8 + R() * 1.8;
-    const x = ((((x0 - t * sp) % 1300) + 1300) % 1300) - 110;
-    return <circle key={x0} cx={x} cy={y + 6 * Math.sin(t * 0.6 + x0)} r={r} fill="#D8EEF0" opacity={0.18 + R() * 0.25} />;
-  });
+// Clear day on open grassland, the same light as the Short 05 day look: bright midday sky, white cumulus,
+// blue hills fading into haze, a plain of grass. The sun is high on the left, so shadows are short and fall
+// to the lower right of each animal.
+const PAL6 = ['#2C6FC2', '#3F86D3', '#62A2E0', '#8DBDEA', '#BCD8F0', '#E4EEF2'];
+const OFF6 = [0, 0.3, 0.55, 0.75, 0.92, 1];
+const Meadow: React.FC<{gy: number; t: number; pan: number}> = ({gy, t, pan}) => {
+  const hz = gy - 120;
+  const wrap = (x: number, w: number) => ((x % w) + w) % w;
+  const range = (par: number, amp: number, seed: number, base: number) => {
+    let d = `M-40,${base + 4}`;
+    for (let x = -40; x <= 1120; x += 14) {
+      const wx = x + pan * par + seed * 977;
+      const h = amp * (0.55 * Math.max(0, Math.sin(wx / 230) * Math.sin(wx / 91 + seed)) + 0.3 * Math.sin(wx / 53 + seed) ** 2 + 0.15);
+      d += ` L${x},${(base - h).toFixed(1)}`;
+    }
+    return d + ` L1120,${base + 4}Z`;
+  };
+  const G = rng(31);
+  const clouds = Array.from({length: 7}, (_, i) => ({x: G() * 1500, y: 640 + G() * Math.max(40, hz - 860), w: 180 + G() * 260, seed: 100 + i * 37, par: 0.04 + G() * 0.05}));
+  const R = rng(14);
+  const tufts = Array.from({length: 160}, () => ({x: R() * 1400, y: gy + 8 + Math.pow(R(), 1.5) * (1920 - gy), h: 6 + R() * 14, c: R()}));
+  const trees = Array.from({length: 9}, () => ({x: R() * 1600, s: 0.6 + R() * 0.6}));
   return (
     <g>
       <defs>
-        <linearGradient id="s6Sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#38344C" />
-          <stop offset="0.45" stopColor="#5E4F6A" />
-          <stop offset="0.8" stopColor="#B07E80" />
-          <stop offset="1" stopColor="#E7B08E" />
+        <linearGradient id="m6Sky" x1="0" y1="0" x2="0" y2="1">
+          {PAL6.map((c, i) => <stop key={i} offset={OFF6[i]} stopColor={c} />)}
         </linearGradient>
-        <radialGradient id="s6Sun" cx="0.19" cy="1" r="0.75">
-          <stop offset="0" stopColor="#FFD9AE" stopOpacity="0.75" />
-          <stop offset="1" stopColor="#FFD9AE" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id="s6Surf" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#C99486" />
-          <stop offset="0.35" stopColor="#7E6274" />
-          <stop offset="1" stopColor="#3E3A54" />
+        <radialGradient id="m6Sun" cx="0.12" cy="0.12" r="0.6"><stop offset="0" stopColor="#FFF8E6" stopOpacity="0.85" /><stop offset="1" stopColor="#FFF8E6" stopOpacity="0" /></radialGradient>
+        <linearGradient id="m6Grass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#9DBA6A" />
+          <stop offset="0.25" stopColor="#7FA555" />
+          <stop offset="1" stopColor="#4C7A3A" />
         </linearGradient>
-        <linearGradient id="s6Deep" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3D6872" />
-          <stop offset="0.3" stopColor="#24465A" />
-          <stop offset="1" stopColor="#0E1C2A" />
-        </linearGradient>
-        <linearGradient id="s6Ray" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#F4E4C4" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#F4E4C4" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="s6Bed" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3B4246" />
-          <stop offset="1" stopColor="#15181E" />
-        </linearGradient>
+        <linearGradient id="m6Far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#B9C9D8" /><stop offset="1" stopColor="#CBD8DF" /></linearGradient>
+        <linearGradient id="m6Mid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8EA88A" /><stop offset="1" stopColor="#A9BC92" /></linearGradient>
+        <filter id="dsCloudEdge" x="-5%" y="-10%" width="110%" height="120%"><feGaussianBlur stdDeviation="1.6" /></filter>
+        <filter id="m6Soft" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="6" /></filter>
       </defs>
-      <rect width={1080} height={hz + 2} fill="url(#s6Sky)" />
-      <rect width={1080} height={hz + 2} fill="url(#s6Sun)" />
-      {stars.map((s, i) => <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#FFF3E6" opacity={s.o * 0.7} />)}
-      <circle cx={205} cy={hz - 34} r={40} fill="#FFE6C2" opacity={0.95} />
-      <path d={ridge(3, hz, 26, 560, 1100)} fill="#7A5A6E" />
-      <path d={ridge(9, hz, 14, -20, 120)} fill="#6A5064" />
-      <rect y={hz} width={1080} height={wy - hz} fill="url(#s6Surf)" />
-      {glitter}
-      <rect y={wy} width={1080} height={bed} fill="url(#s6Deep)" />
-      {rays}
-      {snow}
-      <rect y={sb} width={1080} height={1920 - sb + 400} fill="url(#s6Bed)" />
-      <path d={`M0,${sb} ${Array.from({length: 28}, (_, i) => `Q${i * 40 + 20},${sb - 10 - 8 * Math.sin(i * 1.7)} ${i * 40 + 40},${sb}`).join(' ')} L1080,${sb + 30} L0,${sb + 30}Z`} fill="#3B4246" />
-      {Array.from({length: 12}, (_, i) => <path key={i} d={`M${(i * 97) % 1080},${sb + 40 + (i % 4) * 26} q30,-6 60,0`} stroke="#5A6266" strokeOpacity={0.35} strokeWidth={2} fill="none" />)}
-    </g>
-  );
-};
-
-// drawn over the animals: water colour and depth haze, a bright band under the surface, then the surface line
-const WaterFront: React.FC<{wy: number; t: number; bed?: number}> = ({wy, t, bed = SEABED}) => {
-  const sb = wy + bed;
-  let d = `M0,${wy}`;
-  for (let x = 0; x <= 1080; x += 20) d += ` L${x},${(wy + 2.2 * Math.sin(x / 37 + t * 2.1) + 1.6 * Math.sin(x / 13 - t * 3.3)).toFixed(1)}`;
-  return (
-    <g>
-      <defs>
-        <linearGradient id="s6Haze" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#3C7484" stopOpacity="0.22" />
-          <stop offset="0.5" stopColor="#1C3A4C" stopOpacity="0.38" />
-          <stop offset="1" stopColor="#0B1622" stopOpacity="0.6" />
-        </linearGradient>
-        <linearGradient id="s6Under" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#D6F0EE" stopOpacity="0.35" />
-          <stop offset="1" stopColor="#D6F0EE" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <rect y={wy} width={1080} height={bed} fill="url(#s6Haze)" />
-      <rect y={wy} width={1080} height={26} fill="url(#s6Under)" />
-      <path d={d} fill="none" stroke="#FFE4C4" strokeOpacity={0.75} strokeWidth={2.5} />
-      <rect y={sb} width={1080} height={30} fill="#0B1622" opacity={0.25} />
+      <rect width={1080} height={hz + 60} fill="url(#m6Sky)" />
+      <rect width={1080} height={hz} fill="url(#m6Sun)" />
+      {clouds.map((c, i) => {
+        const x = wrap(c.x - pan * c.par - t * 4, 1500) - 200;
+        return cumulus({x, y: c.y, w: c.w, h: c.w * 0.38, seed: c.seed}, `m6c${i}`, 1, 0.95, 0.15);
+      })}
+      <path d={range(0.03, 70, 2, hz)} fill="url(#m6Far)" />
+      <path d={range(0.07, 46, 5, hz + 30)} fill="url(#m6Mid)" />
+      {trees.map((tr, i) => {
+        const x = wrap(tr.x - pan * 0.1, 1600) - 200, y = hz + 30;
+        return <g key={i} transform={`translate(${x},${y}) scale(${tr.s})`}><rect x={-2} y={-18} width={4} height={18} fill="#5E6E52" /><ellipse cx={0} cy={-26} rx={16} ry={13} fill="#6F8A5E" /></g>;
+      })}
+      <rect y={hz + 28} width={1080} height={1920 - hz} fill="url(#m6Grass)" />
+      <rect y={hz + 28} width={1080} height={gy - hz - 20} fill="#C8D8B0" opacity={0.25} />
+      {tufts.map((g, i) => {
+        const x = wrap(g.x - pan * (0.2 + (g.y - gy) / 900), 1400) - 160, k = 0.5 + (g.y - gy) / 700;
+        return <path key={i} d={`M${x},${g.y} l${-3 * k},${-g.h * k} M${x},${g.y} l${1 * k},${-g.h * 1.2 * k} M${x},${g.y} l${4 * k},${-g.h * 0.9 * k}`} stroke={g.c > 0.5 ? '#5E8A44' : '#88AE5E'} strokeWidth={1.6} opacity={0.7} />;
+      })}
     </g>
   );
 };
@@ -123,18 +79,21 @@ const WaterFront: React.FC<{wy: number; t: number; bed?: number}> = ({wy, t, bed
 const Animal: React.FC<{id: string; t: number; walk: number}> = ({id, t, walk}) => {
   switch (id) {
     case 'human': return <g transform="translate(0.17,0)"><Human t={t} /></g>;
+    case 'komodo': return <Komodo t={t} />;
     case 'croc': return <Croc t={t} walk={walk} />;
     case 'python': return <Python t={t} walk={walk} />;
     case 'rex': return <TRex t={t} walk={walk} />;
     case 'spino': return <Spino t={t} walk={walk} />;
-    case 'meg': return <Megalodon t={t} />;
-    case 'ws': return <WhaleShark t={t} />;
-    case 'whale': return <BlueWhale t={t} />;
+    case 'diplo': return <Diplo t={t} />;
     case 'argo': return <Argo t={t} walk={walk} />;
-    case 'jelly': return <Jelly t={t} />;
     default: return null;
   }
 };
+
+// soft contact shadow on the grass, offset a little to the right (sun high on the left)
+const Shadow: React.FC<{x: number; w: number; gy: number; s: number}> = ({x, w, gy, s}) => (
+  <ellipse cx={x + w * 0.54} cy={gy + 4} rx={w * 0.5} ry={Math.max(4, Math.min(16, 0.35 * s))} fill="#26401E" opacity={0.32} filter="url(#m6Soft)" />
+);
 
 type Placed = {g: Giant; i: number; x: number; walk: number; opacity: number};
 // screen placement: x = left end on screen, s = px per metre, wy = waterline
@@ -268,15 +227,14 @@ const Main: React.FC = () => {
       <svg width={1080} height={1920} style={{position: 'absolute'}}>
         <GiantDefs />
         <g transform={`translate(${sway.x},0)`}>
-          <Shore wy={wy} t={t} bed={560} />
-          <Layer list={placed} zone="sea" s={s} wy={wy} t={t} />
+          <Meadow gy={wy} t={t} pan={cx * 0.6 + Math.log(s) * 400} />
+          {placed.map((pl) => <Shadow key={'sh' + pl.g.id} x={pl.x} w={pl.g.L * s} gy={wy} s={s} />)}
           <Layer list={placed} zone="land" s={s} wy={wy} t={t} />
-          <WaterFront wy={wy} t={t} bed={560} />
         </g>
         <rect y={0} width={1080} height={560} fill="url(#s6Top)" />
-        <defs><linearGradient id="s6Top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1c1626" stopOpacity="0.45" /><stop offset="1" stopColor="#1c1626" stopOpacity="0" /></linearGradient></defs>
+        <defs><linearGradient id="s6Top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0c2238" stopOpacity="0.62" /><stop offset="1" stopColor="#0c2238" stopOpacity="0" /></linearGradient></defs>
         <rect y={LABEL_Y - 60} width={1080} height={240} fill="url(#s6Lab)" />
-        <defs><linearGradient id="s6Lab" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0B1622" stopOpacity="0" /><stop offset="0.4" stopColor="#0B1622" stopOpacity="0.35" /><stop offset="1" stopColor="#0B1622" stopOpacity="0" /></linearGradient></defs>
+        <defs><linearGradient id="s6Lab" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#13240E" stopOpacity="0" /><stop offset="0.4" stopColor="#13240E" stopOpacity="0.42" /><stop offset="1" stopColor="#13240E" stopOpacity="0" /></linearGradient></defs>
         {vis.map((v) => v.labOp > 0.01 && <Label key={v.g.id} g={v.g} x={v.mid + sway.x} opacity={v.labOp} highlight={v.i === curK + 1 || (p < 0 && v.i === 0)} />)}
         {multOp > 0.01 && b && <Multiplier value={b.m / a.m} than={a.ref} opacity={multOp} />}
         <ScaleBar len={bar.len} text={`${bar.m} m`} opacity={interpolate(f, [10, 30], [0, 1], clamp)} />
@@ -285,27 +243,26 @@ const Main: React.FC = () => {
   );
 };
 
-// Cold open: tight on a blue whale's head while a jellyfish's tentacles drift past it and keep going.
+// Cold open: the biggest dinosaur, with a person standing by its front foot, and the hook number.
 const Cold: React.FC = () => {
   const f = useCurrentFrame();
-  const t = f / T.fps, s = 52;
-  const wy = 600;
+  const t = f / T.fps, s = 27;
+  const gy = 1300;
   const pop = interpolate(f, [0, 6], [0.92, 1], clamp);
-  const whaleX = 830 - 29.9 * s + 14 * (f / COLD);
-  const jx = 990 - 36.6 * s + 26 * (f / COLD);
+  const ax = 1060 - 35 * s - 20 * (f / COLD);
   return (
     <AbsoluteFill style={{background: '#16141c'}}>
       <svg width={1080} height={1920} style={{position: 'absolute'}}>
         <GiantDefs />
-        <Shore wy={wy} t={t} bed={1400} />
-        <g transform={`translate(${jx},${1010}) scale(${s})`}><Jelly t={t + 3} strands={40} /></g>
-        <g transform={`translate(${whaleX},${1300}) scale(${s})`}><BlueWhale t={t} /></g>
-        <WaterFront wy={wy} t={t} bed={1400} />
-        <rect y={0} width={1080} height={560} fill="url(#s6TopC)" />
-        <defs><linearGradient id="s6TopC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1c1626" stopOpacity="0.5" /><stop offset="1" stopColor="#1c1626" stopOpacity="0" /></linearGradient></defs>
-        <g style={shadow} transform={`translate(540,330) scale(${pop}) translate(-540,-330)`}>
-          <text x={540} y={300} textAnchor="middle" fontFamily="Inter" fontWeight={300} fontSize={84} fill={CREAM}>Longer than</text>
-          <text x={540} y={400} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={92} fill={CREAM}>a blue whale<tspan fill={ACC}>?</tspan></text>
+        <Meadow gy={gy} t={t} pan={f * 1.5} />
+        <Shadow x={ax} w={35 * s} gy={gy} s={s} />
+        <g transform={`translate(${ax},${gy}) scale(${s})`}><Argo t={t + 2} /></g>
+        <g transform={`translate(${ax + 23.4 * s},${gy}) scale(${s})`}><Human t={t} /></g>
+        <rect y={0} width={1080} height={620} fill="url(#s6TopC)" />
+        <defs><linearGradient id="s6TopC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0c2238" stopOpacity="0.62" /><stop offset="1" stopColor="#0c2238" stopOpacity="0" /></linearGradient></defs>
+        <g style={shadow} transform={`translate(540,360) scale(${pop}) translate(-540,-360)`}>
+          <text x={540} y={300} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={112} fill={CREAM}>1.7 <tspan fill={ACC}>→</tspan> 35 m</text>
+          <text x={540} y={372} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={32} letterSpacing={5} fill={CREAM}>LONGEST LAND ANIMALS EVER</text>
         </g>
       </svg>
     </AbsoluteFill>
@@ -313,7 +270,7 @@ const Cold: React.FC = () => {
 };
 
 export const Short06: React.FC<{audio?: string; only?: 'cold' | 'main'}> = ({audio, only}) => (
-  <AbsoluteFill style={{background: '#16141c', filter: 'contrast(1.06) saturate(1.1)'}}>
+  <AbsoluteFill style={{background: '#16141c', filter: 'contrast(1.04)'}}>
     {only !== 'main' && <Sequence durationInFrames={COLD}><Cold /></Sequence>}
     {only !== 'cold' && <Sequence from={only === 'main' ? 0 : COLD}><Main /></Sequence>}
     {audio && <Audio src={staticFile(audio)} />}

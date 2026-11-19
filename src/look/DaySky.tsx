@@ -42,7 +42,7 @@ const skyAt = (alt: number) => {
 // A cumulus cloud: lobes piled on a flat base, lit from the upper left. Each cloud has its own random shape
 // (no repeated stamp), a bright crown, a cool shadowed underside and a soft edge.
 type Puff = {x: number; y: number; w: number; h: number; seed: number};
-const cumulus = (p: Puff, key: string, stretch: number, op: number, haze: number) => {
+export const cumulus = (p: Puff, key: string, stretch: number, op: number, haze: number) => {
   const R = rng(p.seed);
   const n = 9 + Math.floor(R() * 5);
   const tier = Array.from({length: n}, (_, i) => {

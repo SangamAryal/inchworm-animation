@@ -80,3 +80,4 @@ The 747 and Concorde figures are cruise speeds, the others are top or record spe
 - Blue whale 29.9 m: longest measured (whaling records).
 - Argentinosaurus ~35 m: estimates 30-35 m from partial remains.
 - Lion's mane jellyfish 36.6 m: Massachusetts Bay specimen, 1870, bell to tentacle tip.
+- v3 (land only): Komodo dragon ~3 m (largest lizard alive); Diplodocus ~25 m (D. carnegii estimates 24-26 m). Sea animals removed.

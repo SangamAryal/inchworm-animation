@@ -34,6 +34,8 @@ export const GiantDefs: React.FC = () => (
     {lin('gWs', [[0, '#26394A'], [0.4, '#3E5468'], [0.58, '#8C9AA2'], [0.7, '#D7DAD2'], [1, '#ECECE4']])}
     {lin('gWhale', [[0, '#3D5065'], [0.35, '#587089'], [0.7, '#7E95A8'], [1, '#A6B6C0']])}
     {lin('gArgo', [[0, '#5E5248'], [0.35, '#7E7062'], [0.7, '#A69682'], [1, '#C8B89E']])}
+    {lin('gKomo', [[0, '#5A5246'], [0.35, '#776C5A'], [0.7, '#998C72'], [1, '#B7A98A']])}
+    {lin('gDiplo', [[0, '#5E6052'], [0.35, '#7C7C66'], [0.7, '#A29E84'], [1, '#C3BCA0']])}
     {lin('gArgoLeg', [[0, '#8A7A66'], [1, '#54483E']])}
     <radialGradient id="gBell" cx="0.62" cy="0.42" r="0.7">
       <stop offset="0" stopColor="#FFD9AE" stopOpacity="0.95" />
@@ -471,6 +473,58 @@ export const Human: React.FC<AnimalProps> = ({t}) => {
       <path d={smooth(up([[-0.075, 1.43], [0.04, 1.42], [0.045, 1.26], [-0.065, 1.24]]))} fill="url(#hShirt)" />
       <ellipse cx={0.05 + sw} cy={-(0.815 + br * 0.1)} rx={0.036} ry={0.062} fill="#BE8466" />
       <path d={smooth(shirt.slice(0, 6), false)} fill="none" stroke="#FFD6A8" strokeOpacity={0.45} strokeWidth={1.4} {...NS} />
+    </g>
+  );
+};
+
+
+// ------------------------------------------------------------------ Komodo dragon, about 3 m, standing
+export const KOMO_L = 3;
+export const Komodo: React.FC<AnimalProps> = ({t}) => {
+  const tail = (x: number) => (x < 1.3 ? 0.04 * Math.pow((1.3 - x) / 1.3, 2) * Math.sin(t * 1.8 - x * 2) : 0);
+  const br = 0.006 * Math.sin(t * 1.4);
+  const mv = (p: Pt[]) => p.map(([x, y]) => [x, y + tail(x) + (x > 1.5 ? br : 0)] as Pt);
+  const top = mv([[0, 0.05], [0.6, 0.15], [1.2, 0.3], [1.6, 0.42], [1.8, 0.46], [2.2, 0.47], [2.45, 0.43], [2.6, 0.41], [2.78, 0.4], [2.92, 0.36], [3.0, 0.3]]);
+  const bot = mv([[3.0, 0.27], [2.86, 0.23], [2.66, 0.24], [2.46, 0.27], [2.26, 0.22], [1.95, 0.19], [1.6, 0.23], [1.2, 0.17], [0.6, 0.07], [0.1, 0.03]]);
+  const hind: Pt[] = [[1.5, 0.34], [1.78, 0.34], [1.84, 0.18], [1.93, 0.04], [2.04, 0.0], [1.72, 0.0], [1.6, 0.14]];
+  const fore: Pt[] = [[2.14, 0.31], [2.36, 0.31], [2.42, 0.15], [2.5, 0.03], [2.6, 0.0], [2.3, 0.0], [2.2, 0.13]];
+  const flick = Math.max(0, Math.sin(t * 2.3)) ** 6;
+  return (
+    <g>
+      <path d={smooth(hind.map(([x, y]) => [x - 0.08, y] as Pt))} fill="#3E382E" />
+      <path d={smooth(fore.map(([x, y]) => [x - 0.08, y] as Pt))} fill="#3E382E" />
+      <Body d={smooth([...top, ...bot])} fill="url(#gKomo)" top={top} />
+      {Array.from({length: 18}, (_, i) => 0.3 + i * 0.14).map((x) => <circle key={x} cx={x} cy={-(yAt(top, x) - 0.06)} r={0.012} fill="#3A342A" opacity={0.4} />)}
+      <Line pts={[[2.62, 0.3 + br], [2.85, 0.29 + br], [2.99, 0.29 + br]]} c="#2A241C" w={1.2} />
+      {flick > 0.05 && <Line pts={[[2.99, 0.28 + br], [3.0 + 0.14 * flick, 0.28 + br], [3.06 + 0.12 * flick, 0.3 + br]]} c="#E8C24A" w={1.6} sm={false} />}
+      <Eye x={2.8} y={0.36 + br} r={0.016} iris="#3A2A18" />
+      <path d={smooth(hind)} fill="url(#gKomo)" />
+      <path d={smooth(fore)} fill="url(#gKomo)" />
+    </g>
+  );
+};
+
+// ------------------------------------------------------------------ Diplodocus, about 25 m, whip tail and level neck
+export const DIPLO_L = 25;
+export const Diplo: React.FC<AnimalProps> = ({t}) => {
+  const bob = 0.03 * Math.sin(t * 0.9);
+  const neck = (x: number) => (x > 15 ? 0.2 * Math.sin(t * 0.6) * Math.pow((x - 15) / 10, 1.5) : 0);
+  const tail = (x: number) => (x < 9 ? 0.3 * Math.pow((9 - x) / 9, 2) * Math.sin(t * 1.2 - x * 0.35) : 0);
+  const mv = (p: Pt[]) => p.map(([x, y]) => [x, y + bob + neck(x) + tail(x)] as Pt);
+  const top = mv([[0, 2.6], [2, 2.85], [5, 3.55], [8, 4.55], [10.5, 5.25], [12, 5.55], [14, 5.4], [15.5, 5.05], [17, 5.3], [20, 5.8], [23, 6.1], [24.2, 6.18], [24.75, 6.02], [25, 5.82]]);
+  const bot = mv([[25, 5.6], [24.4, 5.52], [23, 5.58], [20, 5.18], [17, 4.5], [15.6, 3.75], [13.5, 3.35], [11.5, 3.5], [9.5, 4.0], [7, 3.7], [4, 3.0], [1.5, 2.55], [0.2, 2.55]]);
+  const pil = (x: number, tp: number, w: number): Pt[] => [[x - w * 0.62, tp], [x + w * 0.62, tp], [x + w * 0.5, tp * 0.55], [x + w * 0.42, 0.4], [x + w * 0.6, 0], [x - w * 0.55, 0], [x - w * 0.42, 0.4], [x - w * 0.5, tp * 0.55]];
+  const leg = (x: number, tp: number, w: number, fill: string) => <path d={smooth(pil(x, tp + bob, w), true, 0.6)} fill={fill} />;
+  return (
+    <g>
+      {leg(11.2, 4.2, 1.15, '#4A463A')}
+      {leg(15.0, 4.0, 1.0, '#4A463A')}
+      <Body d={smooth([...top, ...bot])} fill="url(#gDiplo)" top={top} />
+      {Array.from({length: 9}, (_, i) => 16.5 + i * 0.9).map((x) => <Line key={x} pts={[[x, yAt(bot, x) + 0.1], [x + 0.2, yAt(top, x + 0.2) - 0.12]]} c="#4A4636" w={1} o={0.3} sm={false} />)}
+      <Line pts={[[24.3, 5.68 + bob + neck(24.3)], [24.95, 5.72 + bob + neck(25)]]} c="#2E2A20" w={1.3} />
+      <Eye x={24.45} y={5.95 + bob + neck(24.45)} r={0.08} iris="#2A2018" />
+      {leg(11.9, 4.3, 1.2, 'url(#gArgoLeg)')}
+      {leg(15.6, 4.1, 1.05, 'url(#gArgoLeg)')}
     </g>
   );
 };
