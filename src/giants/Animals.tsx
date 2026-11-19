@@ -396,7 +396,7 @@ export const Jelly: React.FC<AnimalProps & {strands?: number}> = ({t, strands = 
       const drift = 0.9 * fbm1(dd / 9 + t * 0.12, k) * Math.min(1, dd / 8);
       pts.push([x, y0 * (1 - Math.min(1, dd / 30) * 0.5) + Math.sin(dd / lam - t * 1.3 + ph) * amp * Math.min(1, dd / 4) + sag * Math.min(1, dd / 20) + drift]);
     }
-    lines.push(<path key={k} d={smooth(pts, false)} fill="none" stroke={long ? '#FFC79E' : R() > 0.5 ? '#F2A57C' : '#E58A68'} strokeOpacity={long ? 0.85 : 0.35 + R() * 0.3} strokeWidth={long ? 1.8 : 1 + R() * 0.6} strokeLinecap="round" {...NS} />);
+    lines.push(<path key={k} d={smooth(pts, false)} fill="none" stroke={long ? '#FFC79E' : R() > 0.5 ? '#F2A57C' : '#E58A68'} strokeOpacity={long ? 0.95 : 0.5 + R() * 0.35} strokeWidth={long ? 2.6 : 1.4 + R() * 0.9} strokeLinecap="round" {...NS} />);
   }
   const arms: React.ReactNode[] = [];
   for (let k = 0; k < 4; k++) {
@@ -418,6 +418,59 @@ export const Jelly: React.FC<AnimalProps & {strands?: number}> = ({t, strands = 
         <Line key={f} pts={[[bx - 0.05, f * ry * 0.9], [bx + rx * 0.5, f * ry * 0.75], [bx + rx * 0.92, f * ry * 0.3]]} c="#8C2E22" w={1.2} o={0.45} />
       ))}
       <path d={smooth(bell.slice(0, 25), false)} fill="none" stroke="#FFE6CC" strokeOpacity={0.6} strokeWidth={1.4} {...NS} />
+    </g>
+  );
+};
+
+// ------------------------------------------------------------------ human, 1.75 m, side view facing the animals
+// Base centre at x = 0. Natural proportions (head about 1/7.5 of height), a face in profile, hair, a t-shirt,
+// jeans and trainers, arm hanging relaxed with a slight bend; breathing and a small weight shift keep it alive.
+export const HUMAN_H = 1.75;
+export const Human: React.FC<AnimalProps> = ({t}) => {
+  const br = 0.004 * Math.sin(t * 1.6), sw = 0.006 * fbm1(t * 0.3, 7);
+  const up = (p: Pt[], k = 1): Pt[] => p.map(([x, y]) => [x + sw * (y / 1.75), y + br * k * Math.max(0, (y - 0.9) / 0.85)]);
+  const hd = (p: Pt[]): Pt[] => p.map(([x, y]) => [x * 1.1, 1.52 + (y - 1.52) * 1.1 - 0.035]);
+  const head = up(hd([[-0.098, 1.6], [-0.1, 1.67], [-0.07, 1.725], [-0.01, 1.752], [0.05, 1.74], [0.088, 1.705], [0.1, 1.668], [0.098, 1.648], [0.112, 1.63], [0.127, 1.607], [0.109, 1.596], [0.113, 1.581], [0.105, 1.572], [0.109, 1.558], [0.1, 1.538], [0.072, 1.522], [0.035, 1.524], [0.0, 1.535], [-0.045, 1.55], [-0.08, 1.567]]));
+  const hair = up(hd([[-0.106, 1.585], [-0.108, 1.672], [-0.075, 1.735], [-0.012, 1.765], [0.052, 1.755], [0.094, 1.718], [0.101, 1.69], [0.07, 1.708], [0.03, 1.712], [-0.005, 1.7], [-0.03, 1.676], [-0.05, 1.63], [-0.07, 1.585]]));
+  const neck = up([[-0.048, 1.56], [0.04, 1.53], [0.052, 1.43], [-0.06, 1.43]]);
+  const shirt = up([[-0.112, 1.435], [-0.03, 1.455], [0.06, 1.448], [0.108, 1.4], [0.13, 1.3], [0.128, 1.18], [0.112, 1.06], [0.108, 0.95], [0.11, 0.9], [-0.105, 0.9], [-0.11, 0.98], [-0.125, 1.1], [-0.138, 1.25], [-0.14, 1.37]]);
+  const leg = (dx: number, kneeF: number): Pt[] => [[-0.105 + dx, 0.96], [0.108 + dx, 0.96], [0.1 + dx, 0.8], [0.078 + dx + kneeF, 0.52], [0.062 + dx, 0.3], [0.052 + dx, 0.09], [-0.042 + dx, 0.09], [-0.052 + dx, 0.3], [-0.05 + dx + kneeF, 0.5], [-0.085 + dx, 0.76]];
+  const shoe = (dx: number): Pt[] => [[-0.062 + dx, 0.0], [0.19 + dx, 0.0], [0.195 + dx, 0.03], [0.15 + dx, 0.068], [0.07 + dx, 0.095], [-0.05 + dx, 0.1], [-0.07 + dx, 0.05]];
+  const arm = (dx: number): Pt[] => up([[-0.02 + dx, 1.4], [-0.025 + dx, 1.25], [-0.005 + dx, 1.1], [0.03 + dx, 0.95], [0.045 + dx, 0.86]]);
+  return (
+    <g>
+      <defs>
+        {lin('hSkin', [[0, '#F0C4A2'], [0.55, '#D19A7A'], [1, '#9A6650']], 'h')}
+        {lin('hShirt', [[0, '#6F93A8'], [0.6, '#4C6E86'], [1, '#2E4458']], 'h')}
+        {lin('hJeans', [[0, '#5A6C90'], [0.6, '#3E4E72'], [1, '#262F48']], 'h')}
+        {lin('hHair', [[0, '#4A3428'], [1, '#1C1412']], 'v')}
+      </defs>
+      {/* far side */}
+      <path d={smooth(leg(-0.035, -0.01))} fill="#2A3350" />
+      <path d={smooth(shoe(-0.04))} fill="#9A9AA2" />
+      <path d={smooth(tube(arm(-0.05), [0.095, 0.085, 0.075, 0.064, 0.055]))} fill="#8E5E4A" />
+      {/* near side */}
+      <path d={smooth(leg(0, 0.012))} fill="url(#hJeans)" />
+      <Line pts={[[0.01, 0.95], [0.02, 0.6], [0.005, 0.12]]} c="#1E2538" w={1} o={0.5} />
+      <path d={smooth(shoe(0))} fill="#ECE8E2" />
+      <path d={poly([[-0.062, 0.0], [0.19, 0.0], [0.195, 0.02], [-0.066, 0.022]])} fill="#8A8690" />
+      <path d={smooth(neck)} fill="url(#hSkin)" />
+      <path d={smooth(shirt)} fill="url(#hShirt)" />
+      <path d={smooth(shirt)} fill="url(#gForm)" opacity={0.6} />
+      <path d={smooth(head)} fill="url(#hSkin)" />
+      <path d={smooth(hair)} fill="url(#hHair)" />
+      <ellipse cx={-0.02} cy={-(1.62 + br)} rx={0.021} ry={0.033} fill="#C48A6C" />
+      <path d={smooth(up(hd([[-0.022, 1.645], [-0.012, 1.63], [-0.02, 1.612]])), false)} fill="none" stroke="#8A5440" strokeWidth={1} {...NS} />
+      {/* eye, brow, mouth */}
+      <ellipse cx={0.091 + sw} cy={-(1.638 + br)} rx={0.009} ry={0.006} fill="#2A1C16" />
+      <path d={smooth(up(hd([[0.066, 1.666], [0.085, 1.672], [0.1, 1.666]])), false)} fill="none" stroke="#3A2820" strokeWidth={1.4} {...NS} />
+      <path d={smooth(up(hd([[0.09, 1.572], [0.105, 1.574]])), false)} fill="none" stroke="#8A4E40" strokeWidth={1} {...NS} />
+      {/* sleeve and near arm */}
+      <path d={smooth(tube(arm(0), [0.1, 0.09, 0.08, 0.068, 0.058]))} fill="#CC9474" />
+      <path d={smooth(tube(arm(0), [0.1, 0.09, 0.08, 0.068, 0.058]))} fill="url(#gForm)" />
+      <path d={smooth(up([[-0.075, 1.43], [0.04, 1.42], [0.045, 1.26], [-0.065, 1.24]]))} fill="url(#hShirt)" />
+      <ellipse cx={0.05 + sw} cy={-(0.815 + br * 0.1)} rx={0.036} ry={0.062} fill="#BE8466" />
+      <path d={smooth(shirt.slice(0, 6), false)} fill="none" stroke="#FFD6A8" strokeOpacity={0.45} strokeWidth={1.4} {...NS} />
     </g>
   );
 };

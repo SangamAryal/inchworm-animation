@@ -5,16 +5,14 @@ import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/ibm-plex-mono/500.css';
 import {fbm1, rng} from '../../engine/noise';
-import {GiantDefs, Argo, BlueWhale, Croc, Jelly, Megalodon, Python, Spino, TRex, WhaleShark} from '../../giants/Animals';
-import {TallDefs, TallObject} from '../short03/objects';
+import {GiantDefs, Human, Argo, BlueWhale, Croc, Jelly, Megalodon, Python, Spino, TRex, WhaleShark} from '../../giants/Animals';
 import {fmtFt} from '../short03/Short03';
-import {COLD, GIANTS, Giant, SPAN, T, WY, X0, pxPerM} from './data';
+import {COLD, GIANTS, Giant, LABEL_Y, T, WY} from './data';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 export const CREAM = '#F6ECDF', MUTE = '#D9C4B4', ACC = '#F6B985';
 const shadow = {filter: 'drop-shadow(0 2px 8px rgba(14,10,18,0.6))'};
 const ease = Easing.inOut(Easing.cubic);
-const easeOut = Easing.out(Easing.cubic);
 
 const ridge = (seed: number, y: number, amp: number, x0: number, x1: number) => {
   const R = rng(seed);
@@ -124,7 +122,7 @@ const WaterFront: React.FC<{wy: number; t: number; bed?: number}> = ({wy, t, bed
 
 const Animal: React.FC<{id: string; t: number; walk: number}> = ({id, t, walk}) => {
   switch (id) {
-    case 'human': return <g transform="translate(0.3,0)"><TallObject id="person" uid="h" /></g>;
+    case 'human': return <g transform="translate(0.17,0)"><Human t={t} /></g>;
     case 'croc': return <Croc t={t} walk={walk} />;
     case 'python': return <Python t={t} walk={walk} />;
     case 'rex': return <TRex t={t} walk={walk} />;
@@ -142,7 +140,7 @@ type Placed = {g: Giant; i: number; x: number; walk: number; opacity: number};
 // screen placement: x = left end on screen, s = px per metre, wy = waterline
 const Layer: React.FC<{list: Placed[]; zone: 'land' | 'sea'; s: number; wy: number; t: number}> = ({list, zone, s, wy, t}) => (
   <>
-    {list.filter((p) => p.g.zone === zone).sort((a, b) => b.i - a.i).map((p) => (
+    {list.filter((p) => p.g.zone === zone).map((p) => (
       <g key={p.g.id} opacity={p.opacity} transform={`translate(${p.x},${wy - p.g.y * s}) scale(${s})`}>
         <Animal id={p.g.id} t={t + p.i * 0.7} walk={p.walk} />
       </g>
@@ -151,105 +149,137 @@ const Layer: React.FC<{list: Placed[]; zone: 'land' | 'sea'; s: number; wy: numb
 );
 
 const fmtM = (g: Giant) => `${g.approx ? '~' : ''}${g.m < 10 ? g.m.toFixed(1) : (Math.round(g.m * 10) / 10).toString()}`;
+const fmtRatio = (r: number) => (r < 1.995 ? r.toFixed(2) : r < 10 ? r.toFixed(1) : Math.round(r).toString());
 
-const Label: React.FC<{g: Giant; opacity: number}> = ({g, opacity}) => {
-  const fs = Math.min(66, 900 / (0.55 * g.name.length));
+// Short 01 style label, under the animal: kind, name, length (highlighted on the newcomer)
+const Label: React.FC<{g: Giant; x: number; opacity: number; highlight: boolean}> = ({g, x: x0, opacity, highlight}) => {
+  const fs = g.name.length > 16 ? 38 : g.name.length > 12 ? 42 : 48;
+  const half = Math.max(g.kind.length * 7.2, g.name.length * fs * 0.27, 110) + 22;
+  const x = Math.min(Math.max(x0, half), 1080 - half);
+  const y = LABEL_Y;
   return (
     <g opacity={opacity} style={shadow}>
-      <text x={540} y={232} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={24} letterSpacing={3.5} fill={MUTE}>{g.kind.toUpperCase()}</text>
-      <text x={540} y={306} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={fs} fill={CREAM}>{g.name}</text>
-      <text x={540} y={420} textAnchor="middle" fontFamily="IBM Plex Mono" fontWeight={500} fontSize={104} fill={ACC}>{fmtM(g)}<tspan fontSize={50} dx={12}>m</tspan></text>
-      <text x={540} y={474} textAnchor="middle" fontFamily="IBM Plex Mono" fontWeight={500} fontSize={30} fill={MUTE}>{g.approx ? '~' : ''}{fmtFt(g.m)}</text>
+      <text x={x} y={y} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={19} letterSpacing={3} fill={MUTE}>{g.kind.toUpperCase()}</text>
+      <text x={x} y={y + 52} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={fs} fill={CREAM}>{g.name}</text>
+      <text x={x} y={y + 100} textAnchor="middle" fontFamily="IBM Plex Mono" fontWeight={500} fontSize={38} fill={highlight ? ACC : MUTE}>{fmtM(g)}<tspan fontSize={24} dx={8}>m</tspan></text>
+      <text x={x} y={y + 136} textAnchor="middle" fontFamily="IBM Plex Mono" fontWeight={500} fontSize={22} fill={MUTE}>{g.approx ? '~' : ''}{fmtFt(g.m)}</text>
     </g>
   );
 };
 
-const RULER_Y = 1800;
-const Ruler: React.FC<{s: number; len: number; opacity: number; tipTop: number}> = ({s, len, opacity, tipTop}) => {
-  const step = [0.5, 1, 2, 5, 10].find((m) => m * s >= 105) ?? 10;
-  const minor = step / 5;
-  const ticks: React.ReactNode[] = [];
-  for (let m = 0; X0 + m * s <= 1060; m += minor) {
-    const major = Math.abs(m / step - Math.round(m / step)) < 1e-6, x = X0 + m * s;
-    ticks.push(<line key={'t' + m} x1={x} x2={x} y1={RULER_Y} y2={RULER_Y - (major ? 18 : 8)} stroke={CREAM} strokeOpacity={major ? 0.75 : 0.4} strokeWidth={2} />);
-    if (major) ticks.push(<text key={'n' + m} x={x} y={RULER_Y + 38} textAnchor="middle" fontFamily="IBM Plex Mono" fontWeight={500} fontSize={22} fill={CREAM} opacity={0.7}>{m === 0 ? '0 m' : +m.toFixed(1)}</text>);
-  }
-  const tx = X0 + len * s;
-  return (
-    <g opacity={opacity}>
-      <line x1={X0} x2={1060} y1={RULER_Y} y2={RULER_Y} stroke={CREAM} strokeOpacity={0.45} strokeWidth={2} />
-      {ticks}
-      <line x1={X0} x2={tx} y1={RULER_Y} y2={RULER_Y} stroke={ACC} strokeWidth={6} strokeLinecap="round" />
-      <line x1={tx} x2={tx} y1={RULER_Y + 4} y2={tipTop} stroke={ACC} strokeOpacity={0.55} strokeWidth={2} strokeDasharray="10 10" />
-      <line x1={X0} x2={X0} y1={RULER_Y + 4} y2={tipTop} stroke={CREAM} strokeOpacity={0.25} strokeWidth={2} strokeDasharray="10 10" />
-      <path d={`M${tx - 11},${RULER_Y - 26} L${tx + 11},${RULER_Y - 26} L${tx},${RULER_Y - 10}Z`} fill={ACC} />
-    </g>
-  );
+const Multiplier: React.FC<{value: number; than: string; opacity: number}> = ({value, than, opacity}) => (
+  <g opacity={opacity} style={shadow}>
+    <text x={540} y={360} textAnchor="middle" fontFamily="Inter" fontWeight={300} fontSize={150} fill={CREAM} letterSpacing={-4}>{fmtRatio(value)}<tspan fill={ACC}>×</tspan></text>
+    <text x={540} y={430} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={28} letterSpacing={4} fill={MUTE}>{`LONGER THAN ${than.toUpperCase()}`}</text>
+  </g>
+);
+
+const ScaleBar: React.FC<{len: number; text: string; opacity: number}> = ({len, text, opacity}) => (
+  <g opacity={opacity * 0.85}>
+    <text x={540} y={1798} textAnchor="middle" fontFamily="IBM Plex Mono" fontWeight={500} fontSize={24} fill={CREAM}>{text}</text>
+    <line x1={540 - len / 2} x2={540 + len / 2} y1={1820} y2={1820} stroke={CREAM} strokeWidth={2} />
+    <line x1={540 - len / 2} x2={540 - len / 2} y1={1810} y2={1830} stroke={CREAM} strokeWidth={2} />
+    <line x1={540 + len / 2} x2={540 + len / 2} y1={1810} y2={1830} stroke={CREAM} strokeWidth={2} />
+  </g>
+);
+const niceBar = (s: number) => {
+  for (const m of [0.5, 1, 2, 5, 10, 20]) if (m * s >= 130) return {m, len: m * s};
+  return {m: 20, len: 20 * s};
 };
 
-export const makeTimeline = (n = GIANTS.length) => {
-  const arrive = (i: number) => i * T.slot; // frame the animal is fully in place
-  const duration = arrive(n - 1) + T.lastHold;
-  const phase = (f: number) => {
-    for (let i = 1; i < n; i++) {
-      const a = arrive(i);
-      if (f < a - T.trans) return i - 1;
-      if (f < a) return i - 1 + (f - (a - T.trans)) / T.trans;
-    }
-    return n - 1;
+// Same layout as Short 01 / 03: pair k = animals k (left) and k+1 (right), each pair scaled so the newcomer is
+// about maxL px long while both fit side by side; the camera slides and zooms (log scale) between pairs.
+export const makeLayout = (items: Giant[] = GIANTS, o = {maxL: 900, introH: 560, fit: 1040, gap: 50, floor: 0}) => {
+  const N = items.length, NP = N - 1;
+  const pairS = (k: number) => {
+    if (k < 0) return o.introH / 1.75;
+    const a = items[k], b = items[k + 1];
+    const byL = o.maxL / b.L, byW = (o.fit - o.gap) / (a.L + b.L);
+    return Math.min(byL, Math.max(byW, byL * o.floor));
   };
-  return {arrive, duration, phase};
+  const xs: {l: number; r: number}[] = [];
+  const centers = [0];
+  for (let k = 0; k < NP; k++) {
+    const s = pairS(k), a = items[k], b = items[k + 1];
+    const sep = (a.L / 2) * s + o.gap + (b.L / 2) * s;
+    const span = a.L * s + o.gap + b.L * s;
+    // if the pair is wider than the screen, keep the newcomer whole and let the old one run off the left
+    const l = span <= 1040 ? 540 - span / 2 + (a.L / 2) * s : 1080 - 40 - b.L * s - o.gap - (a.L / 2) * s;
+    xs.push({l, r: l + sep});
+    centers.push(centers[k] + sep / s);
+  }
+  const ease = Easing.inOut(Easing.cubic);
+  const pairStart = (k: number) => T.intro + T.move + k * (T.hold + T.move);
+  const duration = pairStart(NP - 1) + T.hold + T.outro;
+  const progress = (f: number) => {
+    if (f < T.intro) return -1;
+    if (f < T.intro + T.move) return -1 + ease((f - T.intro) / T.move);
+    for (let k = 0; k < NP - 1; k++) {
+      const st = pairStart(k) + T.hold;
+      if (f < st) return k;
+      if (f < st + T.move) return k + ease((f - st) / T.move);
+    }
+    return NP - 1;
+  };
+  const lerpLog = (a: number, b: number, e: number) => Math.exp(Math.log(a) * (1 - e) + Math.log(b) * e);
+  const camera = (p: number) => {
+    if (p < 0) {
+      const e = p + 1, s = lerpLog(pairS(-1), pairS(0), e);
+      const ax = 540 * (1 - e) + xs[0].l * e;
+      return {s, cx: centers[0] - (ax - 540) / s};
+    }
+    const k = Math.min(Math.floor(p), NP - 1), e = p - k;
+    if (k >= NP - 1) return {s: pairS(NP - 1), cx: centers[NP] - (xs[NP - 1].r - 540) / pairS(NP - 1)};
+    const s = lerpLog(pairS(k), pairS(k + 1), e);
+    const ax = xs[k].r * (1 - e) + xs[k + 1].l * e;
+    return {s, cx: centers[k + 1] - (ax - 540) / s};
+  };
+  return {centers, progress, camera, duration, NP};
 };
 
 const Main: React.FC = () => {
   const f = useCurrentFrame();
-  const TL = makeTimeline();
+  const L = makeLayout();
   const t = (f + COLD) / T.fps;
-  const p = TL.phase(f), k = Math.floor(p), u = p - k;
-  const e = ease(u);
-  const sA = pxPerM(GIANTS[k], k), sB = pxPerM(GIANTS[Math.min(k + 1, GIANTS.length - 1)], k + 1);
-  const s = u > 0 ? sA * Math.pow(sB / sA, e) : sA;
-  const sway = {x: 5 * fbm1(f / 80, 1), y: 4 * fbm1(f / 95, 3)};
+  const p = L.progress(f);
+  const {s, cx} = L.camera(p);
+  const sway = {x: 4 * fbm1(f / 80, 1), y: 3 * fbm1(f / 95, 3)};
   const placed: Placed[] = [];
+  const vis: {g: Giant; i: number; mid: number; labOp: number}[] = [];
   GIANTS.forEach((g, i) => {
-    if (i > k + 1 || (i === k + 1 && u === 0)) return;
-    let x = X0, walk = 0;
-    if (i === k + 1) {
-      const v = easeOut(u);
-      x = X0 - (g.L * s + 180) * (1 - v);
-      walk = interpolate(u, [0, 0.75, 1], [1, 0.8, 0], clamp);
-    }
-    if (i === k && u === 0 && f >= TL.arrive(i) && f < TL.arrive(i) + 20) walk = interpolate(f - TL.arrive(i), [0, 20], [0.4, 0], clamp);
-    placed.push({g, i, x, walk, opacity: 1});
+    const mid = 540 + (L.centers[i] - cx) * s;
+    const x = mid - (g.L / 2) * s;
+    if (x + g.L * s < -60 || x > 1140) return;
+    placed.push({g, i, x, walk: 0, opacity: 1});
+    const labOp = interpolate(p - i, [0.15, 0.55], [1, 0], clamp) * interpolate(i - p, [1.45, 1.85], [1, 0], clamp);
+    vis.push({g, i, mid, labOp});
   });
-  const cur = Math.round(p);
-  const labelOp = (i: number) => {
-    const a = TL.arrive(i);
-    const fin = i === 0 ? 1 : interpolate(f, [a - 16, a], [0, 1], clamp);
-    const fout = i === GIANTS.length - 1 ? 1 : interpolate(f, [TL.arrive(i + 1) - T.trans, TL.arrive(i + 1) - T.trans + 12], [1, 0], clamp);
-    return fin * fout;
-  };
-  const lenNow = u > 0 ? GIANTS[k].m + (GIANTS[k + 1].m - GIANTS[k].m) * e : GIANTS[k].m;
-  const endFade = interpolate(f, [TL.duration - 12, TL.duration - 1], [1, 0], clamp);
+  const kF = Math.max(0, Math.min(Math.floor(p), L.NP - 1));
+  const inTrans = p >= 0 && p !== Math.floor(p);
+  const e = p - Math.floor(p);
+  const curK = p < 0 ? 0 : inTrans ? (e < 0.5 ? kF : kF + 1) : kF;
+  const multOp = interpolate(p, [-0.4, 0], [0, 1], clamp) * (inTrans ? Math.abs(e - 0.5) * 2 : 1);
+  const bar = niceBar(s);
+  const endFade = interpolate(f, [L.duration - 12, L.duration - 1], [1, 0], clamp);
   const wy = WY + sway.y;
+  const a = GIANTS[curK], b = GIANTS[curK + 1];
   return (
     <AbsoluteFill style={{background: '#16141c', opacity: endFade}}>
       <svg width={1080} height={1920} style={{position: 'absolute'}}>
         <GiantDefs />
-        <TallDefs />
         <g transform={`translate(${sway.x},0)`}>
-          <Shore wy={wy} t={t} />
+          <Shore wy={wy} t={t} bed={560} />
           <Layer list={placed} zone="sea" s={s} wy={wy} t={t} />
           <Layer list={placed} zone="land" s={s} wy={wy} t={t} />
-          <WaterFront wy={wy} t={t} />
+          <WaterFront wy={wy} t={t} bed={560} />
         </g>
         <rect y={0} width={1080} height={560} fill="url(#s6Top)" />
         <defs><linearGradient id="s6Top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1c1626" stopOpacity="0.45" /><stop offset="1" stopColor="#1c1626" stopOpacity="0" /></linearGradient></defs>
-        <Ruler s={s} len={lenNow} opacity={1} tipTop={600} />
-        {GIANTS.map((g, i) => {
-          const o = labelOp(i);
-          return o > 0.01 && Math.abs(i - cur) <= 1 ? <Label key={g.id} g={g} opacity={o} /> : null;
-        })}
+        <rect y={LABEL_Y - 60} width={1080} height={240} fill="url(#s6Lab)" />
+        <defs><linearGradient id="s6Lab" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0B1622" stopOpacity="0" /><stop offset="0.4" stopColor="#0B1622" stopOpacity="0.35" /><stop offset="1" stopColor="#0B1622" stopOpacity="0" /></linearGradient></defs>
+        {vis.map((v) => v.labOp > 0.01 && <Label key={v.g.id} g={v.g} x={v.mid + sway.x} opacity={v.labOp} highlight={v.i === curK + 1 || (p < 0 && v.i === 0)} />)}
+        {multOp > 0.01 && b && <Multiplier value={b.m / a.m} than={a.ref} opacity={multOp} />}
+        <ScaleBar len={bar.len} text={`${bar.m} m`} opacity={interpolate(f, [10, 30], [0, 1], clamp)} />
       </svg>
     </AbsoluteFill>
   );
@@ -290,5 +320,4 @@ export const Short06: React.FC<{audio?: string; only?: 'cold' | 'main'}> = ({aud
   </AbsoluteFill>
 );
 
-export const short06Duration = () => COLD + makeTimeline().duration;
-export {SPAN};
+export const short06Duration = () => COLD + makeLayout().duration;
