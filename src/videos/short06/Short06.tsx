@@ -195,9 +195,8 @@ const SeaFront: React.FC = () => (
   </g>
 );
 
-// One animal is highlighted at a time and sits in the centre of the frame. The one before it stands in front
-// of it (on the near edge of the sand, or nearer in the water), so the two read against each other.
-const pairScale = (i: number) => (i === 0 ? 380 / 1.75 : 860 / GIANTS[i].L);
+// One animal is highlighted at a time and sits in the centre of the frame, with the one before it on its left.
+const pairScale = (i: number) => (i === 0 ? 380 / 1.75 : 640 / GIANTS[i].L);
 export const makeLayout = () => {
   const N = GIANTS.length;
   const ease = Easing.inOut(Easing.cubic);
@@ -222,18 +221,21 @@ const Main: React.FC = () => {
   const sA = pairScale(k), sB = pairScale(Math.min(k + 1, L.N - 1));
   const s = u > 0 ? sA * Math.pow(sB / sA, u) : sA;
   const sway = {x: 3 * fbm1(f / 80, 1), y: 2 * fbm1(f / 95, 3)};
-  // who is on screen: [index, centre x, front?, opacity, walk]
-  const show: {i: number; cx: number; front: number; op: number; walk: number}[] = [];
-  if (k >= 1) show.push({i: k - 1, cx: 540, front: 1, op: u > 0 ? interpolate(u, [0, 0.45], [1, 0], clamp) : 1, walk: 0});
-  show.push({i: k, cx: 540, front: u, op: 1, walk: 0});
-  if (u > 0 && k + 1 < L.N) {
-    const g = GIANTS[k + 1], v = Easing.out(Easing.cubic)(u);
-    show.push({i: k + 1, cx: 540 + (g.L * s / 2 + 640) * (1 - v), front: 0, op: 1, walk: interpolate(u, [0, 0.8, 1], [1, 0.7, 0], clamp)});
-  }
-  const ordered = [...show].sort((a, b) => a.front - b.front);
+  // all animals stand in one row in world metres, each a small gap right of the one before; the camera keeps
+  // the highlighted one centred, so the previous one sits on its left (and older ones run off screen)
+  const X: number[] = [];
+  GIANTS.forEach((g, i) => X.push(i === 0 ? 0 : X[i - 1] + GIANTS[i - 1].L + Math.max(0.35, 0.06 * g.L)));
+  const ctr = (i: number) => X[i] + GIANTS[i].L / 2;
+  const camX = u > 0 && k + 1 < L.N ? ctr(k) + (ctr(k + 1) - ctr(k)) * u : ctr(k);
+  const show: {i: number; walk: number}[] = [];
+  GIANTS.forEach((g, i) => {
+    const x0 = 540 + (X[i] - camX) * s, x1 = x0 + g.L * s;
+    if (x1 > -40 && x0 < 1120) show.push({i, walk: i === k + 1 && u > 0 ? interpolate(u, [0, 0.8, 1], [1, 0.7, 0], clamp) : 0});
+  });
+  const ordered = show;
   const place = (o: typeof show[0]) => {
-    const g = GIANTS[o.i], x = o.cx - (g.L * s) / 2;
-    const y = g.zone === 'land' ? GY + 46 * o.front - g.y * s : WY - g.y * s + 30 * o.front;
+    const g = GIANTS[o.i], x = 540 + (X[o.i] - camX) * s;
+    const y = g.zone === 'land' ? GY - g.y * s : WY - g.y * s;
     return {g, x, y};
   };
   const cur = p - k < 0.5 ? k : k + 1;
@@ -242,11 +244,11 @@ const Main: React.FC = () => {
   const multI = cur, multOp = multI >= 1 ? labOp * interpolate(f, [0, 10], [0, 1], clamp) : 0;
   const bar = niceBar(s);
   const endFade = interpolate(f, [L.duration - 12, L.duration - 1], [1, 0], clamp);
-  const pan = 0;
+  const pan = p * 260;
   const layer = (zone: 'land' | 'sea') => ordered.filter((o) => GIANTS[o.i].zone === zone).map((o) => {
     const {g, x, y} = place(o);
     return (
-      <g key={g.id} opacity={o.op}>
+      <g key={g.id}>
         {zone === 'land' && <Shadow x={x} w={g.L * s} gy={y + g.y * s} s={s} />}
         <g transform={`translate(${x},${y}) scale(${s})`}><Animal id={g.id} t={t + o.i * 0.7} walk={o.walk} /></g>
       </g>
