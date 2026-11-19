@@ -5,10 +5,10 @@ import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/ibm-plex-mono/500.css';
 import {fbm1, rng} from '../../engine/noise';
-import {GiantDefs, Human, Argo, Croc, Diplo, Komodo, Python, Spino, TRex} from '../../giants/Animals';
+import {GiantDefs, Human, Argo, Croc, Diplo, Komodo, Python, Spino, TRex, Megalodon, WhaleShark, BlueWhale, Jelly} from '../../giants/Animals';
 import {cumulus} from '../../look/DaySky';
 import {fmtFt} from '../short03/Short03';
-import {COLD, GIANTS, Giant, LABEL_Y, T, WY} from './data';
+import {COLD, GIANTS, Giant, LABEL_Y, T, WY, GY, SB} from './data';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 export const CREAM = '#F6ECDF', MUTE = '#D9C4B4', ACC = '#F6B985';
@@ -86,6 +86,10 @@ const Animal: React.FC<{id: string; t: number; walk: number}> = ({id, t, walk}) 
     case 'spino': return <Spino t={t} walk={walk} />;
     case 'diplo': return <Diplo t={t} />;
     case 'argo': return <Argo t={t} walk={walk} />;
+    case 'meg': return <Megalodon t={t} />;
+    case 'ws': return <WhaleShark t={t} />;
+    case 'whale': return <BlueWhale t={t} />;
+    case 'jelly': return <Jelly t={t} />;
     default: return null;
   }
 };
@@ -135,10 +139,10 @@ const Multiplier: React.FC<{value: number; than: string; opacity: number}> = ({v
 
 const ScaleBar: React.FC<{len: number; text: string; opacity: number}> = ({len, text, opacity}) => (
   <g opacity={opacity * 0.85}>
-    <text x={540} y={1798} textAnchor="middle" fontFamily="IBM Plex Mono" fontWeight={500} fontSize={24} fill={CREAM}>{text}</text>
-    <line x1={540 - len / 2} x2={540 + len / 2} y1={1820} y2={1820} stroke={CREAM} strokeWidth={2} />
-    <line x1={540 - len / 2} x2={540 - len / 2} y1={1810} y2={1830} stroke={CREAM} strokeWidth={2} />
-    <line x1={540 + len / 2} x2={540 + len / 2} y1={1810} y2={1830} stroke={CREAM} strokeWidth={2} />
+    <text x={540} y={1626} textAnchor="middle" fontFamily="IBM Plex Mono" fontWeight={500} fontSize={24} fill={CREAM}>{text}</text>
+    <line x1={540 - len / 2} x2={540 + len / 2} y1={1648} y2={1648} stroke={CREAM} strokeWidth={2} />
+    <line x1={540 - len / 2} x2={540 - len / 2} y1={1638} y2={1658} stroke={CREAM} strokeWidth={2} />
+    <line x1={540 + len / 2} x2={540 + len / 2} y1={1638} y2={1658} stroke={CREAM} strokeWidth={2} />
   </g>
 );
 const niceBar = (s: number) => {
@@ -146,123 +150,161 @@ const niceBar = (s: number) => {
   return {m: 20, len: 20 * s};
 };
 
-// Same layout as Short 01 / 03: pair k = animals k (left) and k+1 (right), each pair scaled so the newcomer is
-// about maxL px long while both fit side by side; the camera slides and zooms (log scale) between pairs.
-export const makeLayout = (items: Giant[] = GIANTS, o = {maxL: 900, introH: 560, fit: 1040, gap: 50, floor: 0}) => {
-  const N = items.length, NP = N - 1;
-  const pairS = (k: number) => {
-    if (k < 0) return o.introH / 1.75;
-    const a = items[k], b = items[k + 1];
-    const byL = o.maxL / b.L, byW = (o.fit - o.gap) / (a.L + b.L);
-    return Math.min(byL, Math.max(byW, byL * o.floor));
-  };
-  const xs: {l: number; r: number}[] = [];
-  const centers = [0];
-  for (let k = 0; k < NP; k++) {
-    const s = pairS(k), a = items[k], b = items[k + 1];
-    const sep = (a.L / 2) * s + o.gap + (b.L / 2) * s;
-    const span = a.L * s + o.gap + b.L * s;
-    // if the pair is wider than the screen, keep the newcomer whole and let the old one run off the left
-    const l = span <= 1040 ? 540 - span / 2 + (a.L / 2) * s : 1080 - 40 - b.L * s - o.gap - (a.L / 2) * s;
-    xs.push({l, r: l + sep});
-    centers.push(centers[k] + sep / s);
-  }
+// The beach: the same clear day, grass behind, a strip of sand where land animals stand, then the sea cut
+// away in front so the sea animals show whole in sunlit water, down to a sandy floor.
+const Coast: React.FC<{t: number; pan: number}> = ({t, pan}) => {
+  const R = rng(21);
+  const rays = Array.from({length: 7}, (_, i) => {
+    const x = 40 + i * 165 + 40 * fbm1(t * 0.12, i), w = 40 + R() * 80, o = 0.07 + 0.06 * (0.5 + 0.5 * fbm1(t * 0.4, i + 20));
+    return <path key={i} d={`M${x},${WY} L${x + w},${WY} L${x + w + 220},${SB} L${x + 170},${SB}Z`} fill="url(#c6Ray)" opacity={o * 2} />;
+  });
+  const motes = Array.from({length: 70}, () => {
+    const x0 = R() * 1300, y = WY + 20 + R() * (SB - WY - 40), sp = 5 + R() * 10, r = 0.8 + R() * 1.6;
+    const x = ((((x0 - t * sp) % 1300) + 1300) % 1300) - 110;
+    return <circle key={x0} cx={x} cy={y + 5 * Math.sin(t * 0.6 + x0)} r={r} fill="#F2FBFF" opacity={0.25 + R() * 0.3} />;
+  });
+  let surf = `M0,${WY}`;
+  for (let x = 0; x <= 1080; x += 20) surf += ` L${x},${(WY + 2.4 * Math.sin(x / 37 + t * 2.1) + 1.5 * Math.sin(x / 13 - t * 3.3)).toFixed(1)}`;
+  return (
+    <g>
+      <defs>
+        <linearGradient id="c6Sand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#EADBB2" /><stop offset="0.6" stopColor="#D9C394" /><stop offset="1" stopColor="#B9A275" /></linearGradient>
+        <linearGradient id="c6Sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#58BCCF" /><stop offset="0.35" stopColor="#2A92B4" /><stop offset="1" stopColor="#11577F" /></linearGradient>
+        <linearGradient id="c6Ray" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFFFFF" stopOpacity="0.9" /><stop offset="1" stopColor="#FFFFFF" stopOpacity="0" /></linearGradient>
+        <linearGradient id="c6Bed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#C2B184" /><stop offset="1" stopColor="#7E6E50" /></linearGradient>
+      </defs>
+      <Meadow gy={GY} t={t} pan={pan} />
+      <path d={`M0,${GY - 26} C300,${GY - 34} 700,${GY - 20} 1080,${GY - 30} L1080,${WY + 4} L0,${WY + 4}Z`} fill="url(#c6Sand)" />
+      <rect y={WY - 14} width={1080} height={18} fill="#A8946A" opacity={0.45} />
+      <rect y={WY} width={1080} height={SB - WY} fill="url(#c6Sea)" />
+      {rays}
+      {motes}
+      <rect y={SB} width={1080} height={1920 - SB} fill="url(#c6Bed)" />
+      <path d={`M0,${SB} ${Array.from({length: 28}, (_, i) => `Q${i * 40 + 20},${SB - 9 - 7 * Math.sin(i * 1.7)} ${i * 40 + 40},${SB}`).join(' ')} L1080,${SB + 30} L0,${SB + 30}Z`} fill="#C2B184" />
+      {Array.from({length: 14}, (_, i) => <path key={i} d={`M${(i * 97) % 1080},${SB + 50 + (i % 4) * 34} q30,-6 60,0`} stroke="#6E6044" strokeOpacity={0.35} strokeWidth={2} fill="none" />)}
+      <path d={surf + ` L1080,${WY - 6} L0,${WY - 6}Z`} fill="#BFEAF2" opacity={0.5} />
+      <path d={surf} fill="none" stroke="#FFFFFF" strokeOpacity={0.9} strokeWidth={3} />
+    </g>
+  );
+};
+// light water over the sea animals (drawn on top of them), so they sit in the water, not on a sticker
+const SeaFront: React.FC = () => (
+  <g>
+    <defs><linearGradient id="c6Haze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#7FD3E2" stopOpacity="0.1" /><stop offset="1" stopColor="#0E4A70" stopOpacity="0.35" /></linearGradient></defs>
+    <rect y={WY} width={1080} height={SB - WY} fill="url(#c6Haze)" />
+  </g>
+);
+
+// One animal is highlighted at a time and sits in the centre of the frame. The one before it stands in front
+// of it (on the near edge of the sand, or nearer in the water), so the two read against each other.
+const pairScale = (i: number) => (i === 0 ? 380 / 1.75 : 860 / GIANTS[i].L);
+export const makeLayout = () => {
+  const N = GIANTS.length;
   const ease = Easing.inOut(Easing.cubic);
-  const pairStart = (k: number) => T.intro + T.move + k * (T.hold + T.move);
-  const duration = pairStart(NP - 1) + T.hold + T.outro;
+  const arrive = (k: number) => T.intro + T.move + (k - 1) * (T.hold + T.move); // frame item k is in place (k >= 1)
+  const duration = arrive(N - 1) + T.hold + T.outro;
   const progress = (f: number) => {
-    if (f < T.intro) return -1;
-    if (f < T.intro + T.move) return -1 + ease((f - T.intro) / T.move);
-    for (let k = 0; k < NP - 1; k++) {
-      const st = pairStart(k) + T.hold;
-      if (f < st) return k;
-      if (f < st + T.move) return k + ease((f - st) / T.move);
+    for (let k = 1; k < N; k++) {
+      const a = arrive(k);
+      if (f < a - T.move) return k - 1;
+      if (f < a) return k - 1 + ease((f - (a - T.move)) / T.move);
     }
-    return NP - 1;
+    return N - 1;
   };
-  const lerpLog = (a: number, b: number, e: number) => Math.exp(Math.log(a) * (1 - e) + Math.log(b) * e);
-  const camera = (p: number) => {
-    if (p < 0) {
-      const e = p + 1, s = lerpLog(pairS(-1), pairS(0), e);
-      const ax = 540 * (1 - e) + xs[0].l * e;
-      return {s, cx: centers[0] - (ax - 540) / s};
-    }
-    const k = Math.min(Math.floor(p), NP - 1), e = p - k;
-    if (k >= NP - 1) return {s: pairS(NP - 1), cx: centers[NP] - (xs[NP - 1].r - 540) / pairS(NP - 1)};
-    const s = lerpLog(pairS(k), pairS(k + 1), e);
-    const ax = xs[k].r * (1 - e) + xs[k + 1].l * e;
-    return {s, cx: centers[k + 1] - (ax - 540) / s};
-  };
-  return {centers, progress, camera, duration, NP};
+  return {duration, progress, arrive, N};
 };
 
 const Main: React.FC = () => {
   const f = useCurrentFrame();
   const L = makeLayout();
   const t = (f + COLD) / T.fps;
-  const p = L.progress(f);
-  const {s, cx} = L.camera(p);
-  const sway = {x: 4 * fbm1(f / 80, 1), y: 3 * fbm1(f / 95, 3)};
-  const placed: Placed[] = [];
-  const vis: {g: Giant; i: number; mid: number; labOp: number}[] = [];
-  GIANTS.forEach((g, i) => {
-    const mid = 540 + (L.centers[i] - cx) * s;
-    const x = mid - (g.L / 2) * s;
-    if (x + g.L * s < -60 || x > 1140) return;
-    placed.push({g, i, x, walk: 0, opacity: 1});
-    const labOp = interpolate(p - i, [0.15, 0.55], [1, 0], clamp) * interpolate(i - p, [1.45, 1.85], [1, 0], clamp);
-    vis.push({g, i, mid, labOp});
-  });
-  const kF = Math.max(0, Math.min(Math.floor(p), L.NP - 1));
-  const inTrans = p >= 0 && p !== Math.floor(p);
-  const e = p - Math.floor(p);
-  const curK = p < 0 ? 0 : inTrans ? (e < 0.5 ? kF : kF + 1) : kF;
-  const multOp = interpolate(p, [-0.4, 0], [0, 1], clamp) * (inTrans ? Math.abs(e - 0.5) * 2 : 1);
+  const p = L.progress(f), k = Math.floor(p), u = p - k;
+  const sA = pairScale(k), sB = pairScale(Math.min(k + 1, L.N - 1));
+  const s = u > 0 ? sA * Math.pow(sB / sA, u) : sA;
+  const sway = {x: 3 * fbm1(f / 80, 1), y: 2 * fbm1(f / 95, 3)};
+  // who is on screen: [index, centre x, front?, opacity, walk]
+  const show: {i: number; cx: number; front: number; op: number; walk: number}[] = [];
+  if (k >= 1) show.push({i: k - 1, cx: 540, front: 1, op: u > 0 ? interpolate(u, [0, 0.45], [1, 0], clamp) : 1, walk: 0});
+  show.push({i: k, cx: 540, front: u, op: 1, walk: 0});
+  if (u > 0 && k + 1 < L.N) {
+    const g = GIANTS[k + 1], v = Easing.out(Easing.cubic)(u);
+    show.push({i: k + 1, cx: 540 + (g.L * s / 2 + 640) * (1 - v), front: 0, op: 1, walk: interpolate(u, [0, 0.8, 1], [1, 0.7, 0], clamp)});
+  }
+  const ordered = [...show].sort((a, b) => a.front - b.front);
+  const place = (o: typeof show[0]) => {
+    const g = GIANTS[o.i], x = o.cx - (g.L * s) / 2;
+    const y = g.zone === 'land' ? GY + 46 * o.front - g.y * s : WY - g.y * s + 30 * o.front;
+    return {g, x, y};
+  };
+  const cur = p - k < 0.5 ? k : k + 1;
+  const curG = GIANTS[cur];
+  const labOp = u === 0 ? 1 : Math.abs(u - 0.5) * 2;
+  const multI = cur, multOp = multI >= 1 ? labOp * interpolate(f, [0, 10], [0, 1], clamp) : 0;
   const bar = niceBar(s);
   const endFade = interpolate(f, [L.duration - 12, L.duration - 1], [1, 0], clamp);
-  const wy = WY + sway.y;
-  const a = GIANTS[curK], b = GIANTS[curK + 1];
+  const pan = 0;
+  const layer = (zone: 'land' | 'sea') => ordered.filter((o) => GIANTS[o.i].zone === zone).map((o) => {
+    const {g, x, y} = place(o);
+    return (
+      <g key={g.id} opacity={o.op}>
+        {zone === 'land' && <Shadow x={x} w={g.L * s} gy={y + g.y * s} s={s} />}
+        <g transform={`translate(${x},${y}) scale(${s})`}><Animal id={g.id} t={t + o.i * 0.7} walk={o.walk} /></g>
+      </g>
+    );
+  });
   return (
     <AbsoluteFill style={{background: '#16141c', opacity: endFade}}>
       <svg width={1080} height={1920} style={{position: 'absolute'}}>
         <GiantDefs />
-        <g transform={`translate(${sway.x},0)`}>
-          <Meadow gy={wy} t={t} pan={cx * 0.6 + Math.log(s) * 400} />
-          {placed.map((pl) => <Shadow key={'sh' + pl.g.id} x={pl.x} w={pl.g.L * s} gy={wy} s={s} />)}
-          <Layer list={placed} zone="land" s={s} wy={wy} t={t} />
+        <g transform={`translate(${sway.x},${sway.y})`}>
+          <Coast t={t} pan={pan} />
+          {layer('sea')}
+          <SeaFront />
+          {layer('land')}
         </g>
         <rect y={0} width={1080} height={560} fill="url(#s6Top)" />
         <defs><linearGradient id="s6Top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0c2238" stopOpacity="0.62" /><stop offset="1" stopColor="#0c2238" stopOpacity="0" /></linearGradient></defs>
-        <rect y={LABEL_Y - 60} width={1080} height={240} fill="url(#s6Lab)" />
-        <defs><linearGradient id="s6Lab" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#13240E" stopOpacity="0" /><stop offset="0.4" stopColor="#13240E" stopOpacity="0.42" /><stop offset="1" stopColor="#13240E" stopOpacity="0" /></linearGradient></defs>
-        {vis.map((v) => v.labOp > 0.01 && <Label key={v.g.id} g={v.g} x={v.mid + sway.x} opacity={v.labOp} highlight={v.i === curK + 1 || (p < 0 && v.i === 0)} />)}
-        {multOp > 0.01 && b && <Multiplier value={b.m / a.m} than={a.ref} opacity={multOp} />}
+        <rect y={SB - 20} width={1080} height={1940 - SB} fill="url(#s6Lab)" />
+        <defs><linearGradient id="s6Lab" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#1E1A10" stopOpacity="0" /><stop offset="0.3" stopColor="#1E1A10" stopOpacity="0.45" /><stop offset="1" stopColor="#1E1A10" stopOpacity="0.55" /></linearGradient></defs>
+        <CenterLabel g={curG} opacity={labOp} />
+        {multOp > 0.01 && <Multiplier value={curG.m / GIANTS[multI - 1].m} than={GIANTS[multI - 1].ref} opacity={multOp} />}
         <ScaleBar len={bar.len} text={`${bar.m} m`} opacity={interpolate(f, [10, 30], [0, 1], clamp)} />
       </svg>
     </AbsoluteFill>
   );
 };
 
-// Cold open: the biggest dinosaur, with a person standing by its front foot, and the hook number.
+const CenterLabel: React.FC<{g: Giant; opacity: number}> = ({g, opacity}) => (
+  <g opacity={opacity} style={shadow}>
+    <text x={540} y={LABEL_Y} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={22} letterSpacing={3.5} fill={MUTE}>{g.kind.toUpperCase()}</text>
+    <text x={540} y={LABEL_Y + 58} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={g.name.length > 16 ? 50 : 56} fill={CREAM}>{g.name}</text>
+    <text x={540} y={LABEL_Y + 120} textAnchor="middle" fontFamily="IBM Plex Mono" fontWeight={500} fontSize={50} fill={ACC}>{fmtM(g)}<tspan fontSize={30} dx={10}>m</tspan><tspan fontSize={26} fill={MUTE} dx={18}>{g.approx ? '~' : ''}{fmtFt(g.m)}</tspan></text>
+  </g>
+);
+
+// Cold open: the two longest, a dinosaur on the beach and a giant jellyfish trailing below it in the sea,
+// with a person by the dinosaur's front foot, and the hook number.
 const Cold: React.FC = () => {
   const f = useCurrentFrame();
   const t = f / T.fps, s = 27;
-  const gy = 1300;
   const pop = interpolate(f, [0, 6], [0.92, 1], clamp);
   const ax = 1060 - 35 * s - 20 * (f / COLD);
+  const jx = 1060 - 36.6 * s - 10 * (f / COLD);
   return (
     <AbsoluteFill style={{background: '#16141c'}}>
       <svg width={1080} height={1920} style={{position: 'absolute'}}>
         <GiantDefs />
-        <Meadow gy={gy} t={t} pan={f * 1.5} />
-        <Shadow x={ax} w={35 * s} gy={gy} s={s} />
-        <g transform={`translate(${ax},${gy}) scale(${s})`}><Argo t={t + 2} /></g>
-        <g transform={`translate(${ax + 23.4 * s},${gy}) scale(${s})`}><Human t={t} /></g>
-        <rect y={0} width={1080} height={620} fill="url(#s6TopC)" />
+        <Coast t={t} pan={0} />
+        <g transform={`translate(${jx},${WY + 9 * s}) scale(${s})`}><Jelly t={t} /></g>
+        <SeaFront />
+        <Shadow x={ax} w={35 * s} gy={GY} s={s} />
+        <g transform={`translate(${ax},${GY}) scale(${s})`}><Argo t={t + 2} /></g>
+        <g transform={`translate(${ax + 23.4 * s},${GY + 20}) scale(${s})`}><Human t={t} /></g>
+        <rect y={0} width={1080} height={560} fill="url(#s6TopC)" />
         <defs><linearGradient id="s6TopC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0c2238" stopOpacity="0.62" /><stop offset="1" stopColor="#0c2238" stopOpacity="0" /></linearGradient></defs>
-        <g style={shadow} transform={`translate(540,360) scale(${pop}) translate(-540,-360)`}>
-          <text x={540} y={300} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={112} fill={CREAM}>1.7 <tspan fill={ACC}>→</tspan> 35 m</text>
-          <text x={540} y={372} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={32} letterSpacing={5} fill={CREAM}>LONGEST LAND ANIMALS EVER</text>
+        <g style={shadow} transform={`translate(540,300) scale(${pop}) translate(-540,-300)`}>
+          <text x={540} y={260} textAnchor="middle" fontFamily="Inter" fontWeight={600} fontSize={112} fill={CREAM}>1.7 <tspan fill={ACC}>→</tspan> 36.6 m</text>
+          <text x={540} y={332} textAnchor="middle" fontFamily="Inter" fontWeight={500} fontSize={32} letterSpacing={5} fill={CREAM}>LONGEST ANIMALS EVER</text>
         </g>
       </svg>
     </AbsoluteFill>

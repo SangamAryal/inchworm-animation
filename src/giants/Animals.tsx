@@ -22,11 +22,23 @@ export const GiantDefs: React.FC = () => (
     {lin('gForm', [[0, '#000', 0], [0.5, '#000', 0], [0.8, '#120c14', 0.22], [1, '#120c14', 0.42]])}
     {lin('gSheen', [[0, '#FFE2C2', 0.3], [0.22, '#FFE2C2', 0.06], [0.4, '#FFE2C2', 0]])}
     {lin('gSheenSea', [[0, '#CFEFF2', 0.28], [0.25, '#CFEFF2', 0.05], [0.45, '#CFEFF2', 0]])}
+    {/* skin: dark mottling plus small light scales, from fractal noise in metres (F fine, M medium, C coarse) */}
+    {([['F', 7], ['M', 2.8], ['C', 1.2]] as [string, number][]).map(([k, fr]) => (
+      <filter key={k} id={`tex${k}`} x="0" y="0" width="1" height="1" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency={fr} numOctaves={4} seed={k.charCodeAt(0)} result="n" />
+        <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0 0.05  -1.5 0 0 0 0.95" result="d" />
+        <feTurbulence type="turbulence" baseFrequency={fr * 3.2} numOctaves={2} seed={k.charCodeAt(0) + 9} result="n2" />
+        <feColorMatrix in="n2" type="matrix" values="0 0 0 0 1  0 0 0 0 0.97  0 0 0 0 0.9  0 0 0 1.1 -0.5" result="l" />
+        <feMerge result="m"><feMergeNode in="d" /><feMergeNode in="l" /></feMerge>
+        <feComposite in="m" in2="SourceAlpha" operator="in" />
+      </filter>
+    ))}
+    {lin('gLegAO', [[0, '#120c10', 0.45], [0.28, '#120c10', 0.08], [0.85, '#120c10', 0], [1, '#120c10', 0.25]])}
     {lin('gCroc', [[0, '#3F4630'], [0.35, '#5C6140'], [0.62, '#8A8558'], [1, '#D2C49A']])}
     {lin('gCrocLeg', [[0, '#4E5236'], [1, '#2E3022']])}
     {lin('gPy', [[0, '#7A6438'], [0.4, '#B39557'], [0.75, '#C9B07A'], [1, '#E2D3A6']])}
     {lin('gRex', [[0, '#5B4A3E'], [0.3, '#7C6652'], [0.7, '#A48C70'], [1, '#C9B496']])}
-    {lin('gRexLeg', [[0, '#7A6450'], [1, '#4A3A30']])}
+    {lin('gRexLeg', [[0, '#927A64'], [1, '#64523F']])}
     {lin('gSpino', [[0, '#4E4A40'], [0.35, '#6E6652'], [0.7, '#968A6E'], [1, '#C2B392']])}
     {lin('gSail', [[0, '#B4614A'], [0.5, '#8E4A3E'], [1, '#5A3A34', 0]])}
     {lin('gMeg', [[0, '#34404A'], [0.42, '#5D6C78'], [0.52, '#A9B4B8'], [0.6, '#D3D8D4'], [1, '#E9EAE2']])}
@@ -36,7 +48,7 @@ export const GiantDefs: React.FC = () => (
     {lin('gArgo', [[0, '#5E5248'], [0.35, '#7E7062'], [0.7, '#A69682'], [1, '#C8B89E']])}
     {lin('gKomo', [[0, '#5A5246'], [0.35, '#776C5A'], [0.7, '#998C72'], [1, '#B7A98A']])}
     {lin('gDiplo', [[0, '#5E6052'], [0.35, '#7C7C66'], [0.7, '#A29E84'], [1, '#C3BCA0']])}
-    {lin('gArgoLeg', [[0, '#8A7A66'], [1, '#54483E']])}
+    {lin('gArgoLeg', [[0, '#A09280'], [0.6, '#8A7B68'], [1, '#6A5C4E']])}
     <radialGradient id="gBell" cx="0.62" cy="0.42" r="0.7">
       <stop offset="0" stopColor="#FFD9AE" stopOpacity="0.95" />
       <stop offset="0.45" stopColor="#E98A5A" stopOpacity="0.88" />
@@ -46,9 +58,11 @@ export const GiantDefs: React.FC = () => (
 );
 
 // fill + core shadow + sheen + rim light along the top edge
-const Body: React.FC<{d: string; fill: string; rim?: string; top?: Pt[]; sea?: boolean; rimO?: number}> = ({d, fill, rim, top, sea, rimO = 0.55}) => (
+type Tex = 'F' | 'M' | 'C';
+const Body: React.FC<{d: string; fill: string; rim?: string; top?: Pt[]; sea?: boolean; rimO?: number; tex?: Tex; texO?: number}> = ({d, fill, rim, top, sea, rimO = 0.55, tex, texO = 0.32}) => (
   <g>
     <path d={d} fill={fill} />
+    {tex && <path d={d} fill="#000" filter={`url(#tex${tex})`} opacity={texO} />}
     <path d={d} fill="url(#gForm)" />
     <path d={d} fill={sea ? 'url(#gSheenSea)' : 'url(#gSheen)'} />
     {top && <path d={smooth(top, false)} fill="none" stroke={rim ?? (sea ? '#D9F2F2' : '#FFD6A8')} strokeOpacity={rimO} strokeWidth={1.6} {...NS} />}
@@ -85,7 +99,7 @@ export const Croc: React.FC<AnimalProps> = ({t, walk = 0}) => {
       {leg(back.map(([x, y]) => [x + 0.15, y + 0.04]), [3.0, -0.2], -stroke, '#2E3022')}
       {leg(front.map(([x, y]) => [x + 0.12, y + 0.04]), [4.45, -0.15], stroke, '#2E3022')}
       {scutes}
-      <Body d={smooth([...top, ...bot])} fill="url(#gCroc)" top={top.slice(0, 11)} />
+      <Body d={smooth([...top, ...bot])} fill="url(#gCroc)" top={top.slice(0, 11)} tex="F" texO={0.4} />
       {/* banded tail and back */}
       {Array.from({length: 9}, (_, i) => 0.4 + i * 0.36).map((x) => (
         <path key={x} d={poly([[x, yAt(top, x) - 0.02], [x + 0.12, yAt(top, x + 0.12) - 0.02], [x + 0.06, yAt(bot, x + 0.06) * 0.4], [x - 0.06, yAt(bot, x - 0.06) * 0.4]])} fill="#2A2E20" opacity={0.35} />
@@ -160,8 +174,41 @@ const dinoLeg = (j: Pt[], piv: Pt, deg: number, tw: number, w: number[]) => {
   const r = [...rotAbout(j.slice(0, 2), piv, deg), ...rotAbout(j.slice(2), piv, deg * 0.6)];
   return smooth(thigh(r[0], r[1], tw)) + legTube(r.slice(1), w);
 };
+
+// sauropod leg: a muscled thigh/upper arm blending into the body, a slight knee, a straight column and a
+// broad foot with blunt nails; ambient occlusion where it meets the belly and at the ground
+const sauroPts = (x: number, top: number, w: number): Pt[] => [
+  [x - 0.7 * w, top + 0.4], [x + 0.64 * w, top + 0.4], [x + 0.6 * w, top * 0.74], [x + 0.5 * w, top * 0.52], [x + 0.53 * w, top * 0.45],
+  [x + 0.42 * w, top * 0.26], [x + 0.46 * w, top * 0.09], [x + 0.64 * w, 0.04], [x + 0.68 * w, 0],
+  [x - 0.6 * w, 0], [x - 0.55 * w, top * 0.07], [x - 0.42 * w, top * 0.2], [x - 0.43 * w, top * 0.46], [x - 0.56 * w, top * 0.72],
+];
+const SauroLeg: React.FC<{x: number; top: number; w: number; deg: number; piv: Pt; fill: string; far?: boolean}> = ({x, top, w, deg, piv, fill, far}) => {
+  const pts = rotAbout(sauroPts(x, top, w), piv, deg), d = smooth(pts, true, 0.7);
+  const foot = rotAbout([[x + 0.3 * w, 0.06], [x + 0.48 * w, 0.06], [x + 0.6 * w, 0.03]], piv, deg);
+  return (
+    <g>
+      <path d={d} fill={fill} />
+      <path d={d} fill="#000" filter="url(#texC)" opacity={0.25} />
+      <path d={d} fill="url(#gLegAO)" />
+      {far && <path d={d} fill="#1a1410" opacity={0.28} />}
+      {!far && foot.map(([fx, fy], i) => <ellipse key={i} cx={fx} cy={-fy} rx={0.09 * w} ry={0.045 * w} fill="#D8CDB8" opacity={0.7} />)}
+      {!far && [0.47, 0.5].map((k) => <Line key={k} pts={rotAbout([[x - 0.25 * w, top * k], [x + 0.05 * w, top * k + 0.06], [x + 0.35 * w, top * k]], piv, deg)} c="#2E2620" w={1} o={0.35} />)}
+    </g>
+  );
+};
+// theropod foot: three forward toes with dark claws, placed at the ankle
+const TheroFoot: React.FC<{ax: number; ay: number; sc: number; fill: string}> = ({ax, ay, sc, fill}) => {
+  const P = (pts: Pt[]) => pts.map(([x, y]) => [ax + x * sc, y * sc + (ay - ay)] as Pt);
+  return (
+    <g>
+      <path d={smooth(P([[-0.18, 0.32], [0.14, 0.3], [0.5, 0.12], [0.86, 0.06], [0.92, 0.0], [0.42, 0.0], [0.1, 0.02], [-0.16, 0.08]]), true, 0.8)} fill={fill} />
+      {[[0.92, 0.0], [0.74, 0.0], [0.6, 0.0]].map(([x, y], i) => <path key={i} d={poly(P([[x - 0.05 - i * 0.02, y + 0.06], [x + 0.1 - i * 0.04, y], [x - 0.06 - i * 0.02, y]]))} fill="#1E1812" />)}
+      <Line pts={P([[0.3, 0.1], [0.62, 0.05]])} c="#1E1812" w={1} o={0.4} />
+    </g>
+  );
+};
 const REX_J: Pt[] = [[5.8, 3.4], [6.55, 1.85], [6.25, 1.05], [6.05, 0.4], [6.6, 0.12], [7.2, 0.04]];
-const REX_W = [0.7, 0.5, 0.36, 0.3, 0.12];
+const REX_W = [0.78, 0.44, 0.27, 0.22, 0.12];
 export const TRex: React.FC<AnimalProps> = ({t, walk = 0}) => {
   const ph = t * 3.4, a = 13 * walk * Math.sin(ph);
   const bob = 0.06 * walk * Math.abs(Math.cos(ph)) + 0.02 * Math.sin(t * 1.3);
@@ -172,7 +219,14 @@ export const TRex: React.FC<AnimalProps> = ({t, walk = 0}) => {
   const hip: Pt = [5.9, 3.2 + bob];
   const leg = (deg: number, fill: string, dx = 0) => {
     const j = REX_J.map(([x, y], i) => [x + dx, y + (i < 1 ? bob : 0)] as Pt);
-    return <path d={dinoLeg(j, hip, deg, 1.7, REX_W)} fill={fill} />;
+    const a3 = rotAbout([j[3]], hip, deg * 0.6)[0];
+    return (
+      <g>
+        <path d={dinoLeg(j.slice(0, 4).concat([[j[3][0] + 0.2, 0.2]]), hip, deg, 1.7, REX_W.slice(0, 4))} fill={fill} />
+        <path d={dinoLeg(j.slice(0, 4).concat([[j[3][0] + 0.2, 0.2]]), hip, deg, 1.7, REX_W.slice(0, 4))} fill="#000" filter="url(#texM)" opacity={0.25} />
+        <TheroFoot ax={a3[0] - 0.1} ay={0} sc={0.95} fill={fill} />
+      </g>
+    );
   };
   const stripes = [3.0, 3.8, 4.6, 5.4, 6.3, 7.2, 8.1].map((x) => (
     <path key={x} d={smooth([[x, yAt(top, x) + 0.02], [x + 0.35, yAt(top, x + 0.35) + 0.02], [x + 0.1, yAt(top, x) - 0.5]])} fill="#3E3028" opacity={0.3} />
@@ -181,8 +235,12 @@ export const TRex: React.FC<AnimalProps> = ({t, walk = 0}) => {
     <g>
       {leg(-a, '#4A3A30', -0.25)}
       <path d={smooth(rotAbout([[9.25, 2.55 + bob], [9.5, 2.55 + bob], [9.75, 2.1 + bob], [9.95, 1.95 + bob], [9.85, 1.86 + bob], [9.55, 2.02 + bob], [9.3, 2.35 + bob]], [9.4, 2.5 + bob], -6))} fill="#4A3A30" />
-      <Body d={smooth([...top, ...bot])} fill="url(#gRex)" top={top} />
+      <Body d={smooth([...top, ...bot])} fill="url(#gRex)" top={top} tex="M" />
       {stripes}
+      {/* jaw muscle and skull openings read as shading on the head */}
+      <ellipse cx={10.75} cy={-(3.2 + bob)} rx={0.55} ry={0.32} fill="#2E241C" opacity={0.18} />
+      <ellipse cx={11.55} cy={-(3.42 + bob)} rx={0.32} ry={0.14} fill="#2E241C" opacity={0.14} />
+      <path d={smooth([[9.4, 3.1 + bob], [10.0, 3.0 + bob], [10.5, 2.75 + bob]], false)} fill="none" stroke="#2E241C" strokeOpacity={0.3} strokeWidth={1.2} {...NS} />
       {/* jaw line, teeth, eye ridge */}
       <Line pts={[[10.55, 2.9 + bob], [11.2, 3.0 + bob], [11.8, 3.12 + bob], [12.25, 3.2 + bob]]} c="#2A1E18" w={1.6} />
       {Array.from({length: 8}, (_, i) => 10.75 + i * 0.19).map((x) => (
@@ -218,7 +276,7 @@ export const Spino: React.FC<AnimalProps> = ({t, walk = 0}) => {
     <g>
       {leg(-a, '#3A342C', -0.3)}
       <path d={smooth(tailFin)} fill="#5A5044" />
-      <Body d={smooth([...top, ...bot])} fill="url(#gSpino)" top={top} />
+      <Body d={smooth([...top, ...bot])} fill="url(#gSpino)" top={top} tex="M" />
       <path d={smooth(sail)} fill="url(#gSail)" opacity={0.85} />
       {Array.from({length: 11}, (_, i) => 6.9 + i * 0.32).map((x) => (
         <Line key={x} pts={[[x, 3.35 + bob], [x + 0.05, yAt(sail.slice(0, 6), x + 0.05) - 0.08]]} c="#5A3028" w={1} o={0.5} sm={false} />
@@ -254,7 +312,7 @@ export const Megalodon: React.FC<AnimalProps> = ({t}) => {
     <g>
       <clipPath id="megClip"><path d={d} /></clipPath>
       <path d={smooth(pec.map(([x, y]) => [x - 0.3, y + 0.15] as Pt))} fill="#2A343C" />
-      <Body d={d} fill="url(#gMeg)" top={b.slice(0, 16)} sea />
+      <Body d={d} fill="url(#gMeg)" top={b.slice(0, 16)} sea tex="M" texO={0.25} />
       <g clipPath="url(#megClip)">
         {[0.775, 0.795, 0.815, 0.835, 0.855].map((u) => <Line key={u} pts={[[u * L, -0.01 * L], [u * L - 0.25, -0.06 * L]]} c="#2A343C" w={1.3} o={0.7} />)}
       </g>
@@ -286,7 +344,7 @@ export const WhaleShark: React.FC<AnimalProps> = ({t}) => {
     <g>
       <clipPath id="wsClip"><path d={d} /></clipPath>
       <path d={smooth(pec.map(([x, y]) => [x - 0.4, y + 0.2] as Pt))} fill="#1E2A36" />
-      <Body d={d} fill="url(#gWs)" top={b.slice(0, 15)} sea />
+      <Body d={d} fill="url(#gWs)" top={b.slice(0, 15)} sea tex="M" texO={0.3} />
       <g clipPath="url(#wsClip)">
         {spots}
         {[0.035, 0.06].map((y) => <Line key={y} pts={[[0.3 * L, y * L], [0.6 * L, (y + 0.02) * L], [0.9 * L, (y + 0.005) * L]]} c="#C8D4D8" w={1.2} o={0.45} />)}
@@ -324,7 +382,7 @@ export const BlueWhale: React.FC<AnimalProps> = ({t}) => {
     <g>
       <clipPath id="whClip"><path d={d} /></clipPath>
       <Body d={smooth(fluke)} fill="url(#gWhale)" sea rimO={0.35} />
-      <Body d={d} fill="url(#gWhale)" top={top} sea />
+      <Body d={d} fill="url(#gWhale)" top={top} sea tex="C" texO={0.35} />
       <g clipPath="url(#whClip)">
         {mottle}
         {Array.from({length: 12}, (_, i) => -0.028 - i * 0.004).map((y, i) => (
@@ -347,7 +405,7 @@ export const Argo: React.FC<AnimalProps> = ({t, walk = 0}) => {
   const tail = (x: number) => (x < 12 ? 0.35 * Math.pow((12 - x) / 12, 2) * Math.sin(t * 1.1 - x * 0.25) : 0);
   const mv = (p: Pt[]) => p.map(([x, y]) => [x, y + bob + neck(x) + tail(x)] as Pt);
   const top = mv([[0, 3.2], [3, 4.1], [6.5, 5.3], [10, 6.5], [13.5, 7.35], [16.5, 7.4], [19.5, 7.05], [21.5, 7.15], [23.5, 7.8], [26.5, 8.9], [29.5, 10.1], [32, 11.1], [33.4, 11.55], [34.3, 11.45], [35, 11.0]]);
-  const bot = mv([[35, 10.6], [34.3, 10.45], [33.3, 10.4], [32.2, 10.0], [29.5, 8.7], [26.5, 7.4], [24, 6.2], [22.3, 4.9], [19.5, 4.05], [16.5, 4.15], [14, 4.6], [11.5, 4.95], [8.5, 4.6], [5, 3.75], [2, 3.15], [0.3, 3.05]]);
+  const bot = mv([[35, 10.6], [34.3, 10.45], [33.3, 10.4], [32.2, 10.0], [29.5, 8.7], [26.5, 7.4], [24, 6.2], [22.3, 4.6], [19.5, 3.6], [16.5, 3.55], [14, 3.95], [11.5, 4.6], [8.5, 4.6], [5, 3.75], [2, 3.15], [0.3, 3.05]]);
   const pil = (x: number, top: number, w: number): Pt[] => [[x - w * 0.62, top], [x + w * 0.62, top], [x + w * 0.5, top * 0.55], [x + w * 0.42, 0.45], [x + w * 0.6, 0], [x - w * 0.55, 0], [x - w * 0.42, 0.45], [x - w * 0.5, top * 0.55]];
   const leg = (x: number, top: number, w: number, deg: number, fill: string) => (
     <path d={smooth(rotAbout(pil(x, top, w).map(([px, py]) => [px, py > 1 ? py + bob : py] as Pt), [x, top - 0.5 + bob], deg), true, 0.6)} fill={fill} />
@@ -361,14 +419,14 @@ export const Argo: React.FC<AnimalProps> = ({t, walk = 0}) => {
   return (
     <g>
       <clipPath id="argClip"><path d={smooth([...top, ...bot])} /></clipPath>
-      {leg(14.0, 5.6, 1.8, -a, '#4A3E36')}
-      {leg(20.9, 5.4, 1.5, a, '#4A3E36')}
-      <Body d={smooth([...top, ...bot])} fill="url(#gArgo)" top={top} />
+      <SauroLeg x={14.0} top={5.6 + bob} w={1.45} deg={-a} piv={[14.0, 5.1 + bob]} fill="#6A5C50" far />
+      <SauroLeg x={20.9} top={5.4 + bob} w={1.25} deg={a} piv={[20.9, 4.9 + bob]} fill="#6A5C50" far />
+      <Body d={smooth([...top, ...bot])} fill="url(#gArgo)" top={top} tex="C" texO={0.35} />
       <g clipPath="url(#argClip)">{blot}{folds}</g>
       <Line pts={[[33.6, 10.62 + bob + neck(33.6)], [34.4, 10.6 + bob + neck(34.4)], [34.95, 10.75 + bob + neck(35)]]} c="#2E2620" w={1.4} />
       <Eye x={33.9} y={11.15 + bob + neck(33.9)} r={0.11} iris="#2A2018" />
-      {leg(15.0, 5.7, 1.9, a, 'url(#gArgoLeg)')}
-      {leg(21.8, 5.5, 1.6, -a, 'url(#gArgoLeg)')}
+      <SauroLeg x={15.0} top={5.7 + bob} w={1.5} deg={a} piv={[15.0, 5.2 + bob]} fill="url(#gArgoLeg)" />
+      <SauroLeg x={21.8} top={5.5 + bob} w={1.3} deg={-a} piv={[21.8, 5.0 + bob]} fill="url(#gArgoLeg)" />
     </g>
   );
 };
@@ -493,7 +551,7 @@ export const Komodo: React.FC<AnimalProps> = ({t}) => {
     <g>
       <path d={smooth(hind.map(([x, y]) => [x - 0.08, y] as Pt))} fill="#3E382E" />
       <path d={smooth(fore.map(([x, y]) => [x - 0.08, y] as Pt))} fill="#3E382E" />
-      <Body d={smooth([...top, ...bot])} fill="url(#gKomo)" top={top} />
+      <Body d={smooth([...top, ...bot])} fill="url(#gKomo)" top={top} tex="F" texO={0.4} />
       {Array.from({length: 18}, (_, i) => 0.3 + i * 0.14).map((x) => <circle key={x} cx={x} cy={-(yAt(top, x) - 0.06)} r={0.012} fill="#3A342A" opacity={0.4} />)}
       <Line pts={[[2.62, 0.3 + br], [2.85, 0.29 + br], [2.99, 0.29 + br]]} c="#2A241C" w={1.2} />
       {flick > 0.05 && <Line pts={[[2.99, 0.28 + br], [3.0 + 0.14 * flick, 0.28 + br], [3.06 + 0.12 * flick, 0.3 + br]]} c="#E8C24A" w={1.6} sm={false} />}
@@ -517,14 +575,14 @@ export const Diplo: React.FC<AnimalProps> = ({t}) => {
   const leg = (x: number, tp: number, w: number, fill: string) => <path d={smooth(pil(x, tp + bob, w), true, 0.6)} fill={fill} />;
   return (
     <g>
-      {leg(11.2, 4.2, 1.15, '#4A463A')}
-      {leg(15.0, 4.0, 1.0, '#4A463A')}
-      <Body d={smooth([...top, ...bot])} fill="url(#gDiplo)" top={top} />
+      <SauroLeg x={11.2} top={4.2 + bob} w={0.95} deg={0} piv={[11.2, 4 + bob]} fill="#6C6A58" far />
+      <SauroLeg x={15.0} top={4.0 + bob} w={0.85} deg={0} piv={[15, 3.8 + bob]} fill="#6C6A58" far />
+      <Body d={smooth([...top, ...bot])} fill="url(#gDiplo)" top={top} tex="C" texO={0.35} />
       {Array.from({length: 9}, (_, i) => 16.5 + i * 0.9).map((x) => <Line key={x} pts={[[x, yAt(bot, x) + 0.1], [x + 0.2, yAt(top, x + 0.2) - 0.12]]} c="#4A4636" w={1} o={0.3} sm={false} />)}
       <Line pts={[[24.3, 5.68 + bob + neck(24.3)], [24.95, 5.72 + bob + neck(25)]]} c="#2E2A20" w={1.3} />
       <Eye x={24.45} y={5.95 + bob + neck(24.45)} r={0.08} iris="#2A2018" />
-      {leg(11.9, 4.3, 1.2, 'url(#gArgoLeg)')}
-      {leg(15.6, 4.1, 1.05, 'url(#gArgoLeg)')}
+      <SauroLeg x={11.9} top={4.3 + bob} w={1.0} deg={0} piv={[11.9, 4 + bob]} fill="url(#gArgoLeg)" />
+      <SauroLeg x={15.6} top={4.1 + bob} w={0.9} deg={0} piv={[15.6, 3.8 + bob]} fill="url(#gArgoLeg)" />
     </g>
   );
 };
