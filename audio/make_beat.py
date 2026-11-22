@@ -133,6 +133,18 @@ for b in range(nbars):
         for i in range(16):
             put('arp', tb + i * beat / 4, pluck(hz(notes[(i * 3) % len(notes)] + 12)), 0.05)
 
+# 'deep' (Short 07): the high layers (hats, clap, arpeggio) thin out as the light goes, then all come back
+# when Everest lands. argv[7] = seconds where the thinning starts, argv[8] = where it bottoms out,
+# argv[9] = where everything returns.
+if 'deep' in sys.argv:
+    i = sys.argv.index('deep')
+    a, b, c = (float(v) for v in sys.argv[i + 1:i + 4])
+    tt = np.arange(N) / SR
+    g = np.interp(tt, [0, a, b, c - 0.05, c], [1, 1, 0.12, 0.12, 1.15])
+    for k in ('hat', 'clap', 'arp'):
+        bus[k] *= g
+    bus['pad'] *= np.interp(tt, [0, a, b, c - 0.05, c], [1, 1, 1.5, 1.5, 1])
+
 # --- mix ---------------------------------------------------------------------
 mix = (bus['pad'] + lp(bus['bass'], 300) + bus['kick'] * 0.9 + bus['clap'] * 0.8 + bus['hat'] * 0.7
        + lp(bus['arp'], 5000))

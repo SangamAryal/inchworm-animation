@@ -11,6 +11,7 @@ Look: objects rest on a rocky ground under a deep-space sky (Milky Way, parallax
 - `npm run render:short03` - Short 03 (tallest things, person to Everest, about 50 s). Make its music first with `npm run sound:short03`.
 - `npm run render:short04` - Short 04 (car top speeds, first car to ThrustSSC, about 43 s, opens with a 1.8 s ThrustSSC cold open). Make its music first with `npm run sound:short04`. Cars are code-drawn side profiles in `src/vehicles/`; the road is `src/look/Highway.tsx`.
 - `npm run render:short06` - Short 06 (longest animals, human to a 36.6 m jellyfish, 50 s, cold open on a blue whale). Music: `npm run sound:short06`. Animals are code-drawn in `src/giants/`; the half-above, half-under-water shore is in `src/videos/short06/Short06.tsx`.
+- `npm run render:short07` - Short 07 (how deep can we go, surface to Challenger Deep, 66 s, cold open: Everest upside down in the trench). Music: `npm run sound:short07` (the high layers thin out as it gets dark). Subjects are code-drawn in `src/deep/`.
 - `npm run music` - make the beat (numpy + scipy). Run it before rendering; the wav is not committed.
 
 In the cloud, set `REMOTION_CHROME=/opt/pw-browsers/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell` before rendering.

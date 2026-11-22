@@ -81,3 +81,17 @@ The 747 and Concorde figures are cruise speeds, the others are top or record spe
 - Argentinosaurus ~35 m: estimates 30-35 m from partial remains.
 - Lion's mane jellyfish 36.6 m: Massachusetts Bay specimen, 1870, bell to tentacle tip.
 - v3 (land only): Komodo dragon ~3 m (largest lizard alive); Diplodocus ~25 m (D. carnegii estimates 24-26 m). Sea animals removed.
+
+## Short 07: how deep can we go? (checked 2026-11-22)
+- Recreational scuba 40 m: common training-agency limit (PADI, SSI).
+- Herbert Nitsch 214 m: No Limits freediving record, 2007 (AIDA).
+- Ahmed Gabr 332.35 m: deepest scuba dive in sea water, Red Sea, 2014 (Guinness World Records page, still listed).
+- Emperor penguin 564 m: deepest dive by a bird (Guinness, Polar Biology 2006).
+- Leatherback turtle 1,280 m: Guinness turtle record. A 1,344 m dive was reported in 2024 (Live Science, The Nature Conservancy) but is not yet verified by Guinness, so the video uses 1,280 m.
+- Sperm whale ~2,000 m: typical tagged maximum; shown with "~".
+- Southern elephant seal 2,388 m: deepest recorded (PLOS ONE 2014, via Wikipedia).
+- Cuvier's beaked whale 2,992 m: deepest mammal dive (Guinness; Schorr et al., PLOS ONE 2014).
+- Titanic about 3,800 m.
+- USS Samuel B. Roberts 6,865 m: deepest shipwreck found, 2022 (Guinness).
+- Snailfish 8,336 m: Izu-Ogasawara Trench (NHM London, April 2023).
+- Challenger Deep about 10,935 m; Mount Everest 8,849 m (2020 survey), so about 2,086 m to spare.
