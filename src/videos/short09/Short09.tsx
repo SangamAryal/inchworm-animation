@@ -47,7 +47,6 @@ const shadow = {filter: 'drop-shadow(0 2px 10px rgba(8,18,34,0.75))'};
 const ease = Easing.inOut(Easing.cubic);
 const group = (n: number) => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const fmtM = (g: Ship) => `${g.approx ? '~' : ''}${g.m < 10 ? g.m.toFixed(1) : g.m >= 100 ? group(g.m) : (Math.round(g.m * 10) / 10).toString()}`;
-const fmtRatio = (r: number) => (r < 1.995 ? r.toFixed(2) : r < 10 ? r.toFixed(1) : group(r));
 
 export const COLD = 54;
 const T = {fps: 30, intro: 48, move: 48, hold: 96, outro: 120};
@@ -170,7 +169,6 @@ const Main: React.FC = () => {
         <defs><linearGradient id="s9Top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0c2238" stopOpacity="0.55" /><stop offset="1" stopColor="#0c2238" stopOpacity="0" /></linearGradient></defs>
         <CenterLabel g={curG} opacity={labOp} />
         {cur === 0 && <Top big="Biggest ships" small="Ever built, to scale" opacity={labOp * interpolate(f, [0, 10], [0, 1], clamp)} />}
-        {cur >= 1 && <Top big={<>{fmtRatio(curG.m / SHIPS[cur - 1].m)}<tspan fill={ACC}>×</tspan></>} small={`Longer than ${SHIPS[cur - 1].ref}`} opacity={labOp} />}
         <ScaleBar s={s} opacity={interpolate(f, [10, 30], [0, 1], clamp)} />
       </svg>
     </AbsoluteFill>
