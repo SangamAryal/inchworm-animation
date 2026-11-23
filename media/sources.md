@@ -95,3 +95,13 @@ The 747 and Concorde figures are cruise speeds, the others are top or record spe
 - USS Samuel B. Roberts 6,865 m: deepest shipwreck found, 2022 (Guinness).
 - Snailfish 8,336 m: Izu-Ogasawara Trench (NHM London, April 2023).
 - Challenger Deep about 10,935 m; Mount Everest 8,849 m (2020 survey), so about 2,086 m to spare.
+
+## Short 08: fastest anime characters (2026-11-23)
+Characters are original streak stand-ins (no likenesses); names in text only. Tag "said in the show" or "fan estimate".
+- Zenitsu 172 km/h (Thunderclap and Flash): Fiction Horizon and Sportskeeda, quoting a Hulu Japan post (translation uncertain).
+- Rocket Punch Mach 2; Jet Scrander Mach 4.5 after its episode 43 refit: Mazinger Wiki, Mazinger Z TV.
+- Jet Link (002) Mach 5: Wikipedia, List of Cyborg 009 characters.
+- Killua ~720,000 km/h: fan reading of "Speed of Lightning" as lightning-leader speed (~200 km/s). Weakest estimate.
+- Saitama ~72,000,000 km/h: 6.7% of light speed, "One Punch Man - Speed Test", University of Leicester student physics journal.
+- Goku ~540,000,000 km/h: ~0.5c Super Saiyan Snake Way fan calc (Quora, via We Got This Covered).
+- Kizaru: speed of light (1,079,252,849 km/h), from his power and his line about being kicked at the speed of light.
