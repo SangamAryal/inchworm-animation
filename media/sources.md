@@ -105,3 +105,8 @@ Characters are original streak stand-ins (no likenesses); names in text only. Ta
 - Saitama ~72,000,000 km/h: 6.7% of light speed, "One Punch Man - Speed Test", University of Leicester student physics journal.
 - Goku ~540,000,000 km/h: ~0.5c Super Saiyan Snake Way fan calc (Quora, via We Got This Covered).
 - Kizaru: speed of light (1,079,252,849 km/h), from his power and his line about being kicked at the speed of light.
+
+## Short 09: biggest ships ever (2026-11-23), length overall
+- Rowboat ~4 m (typical). Santa María ~18 m hull (estimate, no plans survive).
+- HMS Victory 69.3 m overall. Titanic 269.1 m. USS Gerald R. Ford 337 m. Icon of the Seas 364.75 m.
+- Ever Alot 399.99 m (2022). Seawise Giant 458.45 m (scrapped 2010). Prelude FLNG 488 m (Shell). Eiffel Tower 330 m.

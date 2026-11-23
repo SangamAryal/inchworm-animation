@@ -16,6 +16,7 @@ import {Short05, short05Duration, ALL05} from './videos/short05/Short05';
 import {Short06, short06Duration} from './videos/short06/Short06';
 import {Short07, short07Duration} from './videos/short07/Short07';
 import {Short08, short08Duration} from './videos/short08/Short08';
+import {Short09, short09Duration} from './videos/short09/Short09';
 import {RigTest} from './videos/short02/RigTest';
 import {makeLayout} from './engine/layout';
 import {SHORT01_ITEMS, SHORT01_TIMING} from './videos/short01/items';
@@ -75,6 +76,10 @@ export const Root: React.FC = () => (
       durationInFrames={short08Duration()} defaultProps={{audio: 'audio/short08.wav'}} />
     <Composition id="short08silent" component={Short08} width={1080} height={1920} fps={30}
       durationInFrames={short08Duration()} defaultProps={{}} />
+    <Composition id="short09" component={Short09} width={1080} height={1920} fps={30}
+      durationInFrames={short09Duration()} defaultProps={{audio: 'audio/short09.wav'}} />
+    <Composition id="short09silent" component={Short09} width={1080} height={1920} fps={30}
+      durationInFrames={short09Duration()} defaultProps={{}} />
     <Composition id="atest" component={AircraftTest} width={1080} height={1920} fps={30} durationInFrames={60} />
     <Composition id="rigtest" component={RigTest} width={1080} height={1920} fps={30} durationInFrames={300} defaultProps={{animal: 'horse', scale: 140}} />
   </>

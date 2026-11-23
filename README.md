@@ -13,6 +13,7 @@ Look: objects rest on a rocky ground under a deep-space sky (Milky Way, parallax
 - `npm run render:short06` - Short 06 (longest animals, human to a 36.6 m jellyfish, 50 s, cold open on a blue whale). Music: `npm run sound:short06`. Animals are code-drawn in `src/giants/`; the half-above, half-under-water shore is in `src/videos/short06/Short06.tsx`.
 - `npm run render:short07` - Short 07 (how deep can we go, surface to Challenger Deep, 66 s, cold open: Everest upside down in the trench). Music: `npm run sound:short07` (the high layers thin out as it gets dark). Subjects are code-drawn in `src/deep/`.
 - `npm run render:short08` - Short 08 (fastest anime characters, 42 s). Music: `npm run sound:short08`. Characters are original glowing streaks in `src/anime/Streaks.tsx`, never likenesses.
+- `npm run render:short09` - Short 09 (biggest ships ever, 51 s, cold open: Seawise Giant stood on end beside the Eiffel Tower). Music: `npm run sound:short09`. Ships are code-drawn in `src/ships/`.
 - `npm run music` - make the beat (numpy + scipy). Run it before rendering; the wav is not committed.
 
 In the cloud, set `REMOTION_CHROME=/opt/pw-browsers/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell` before rendering.
